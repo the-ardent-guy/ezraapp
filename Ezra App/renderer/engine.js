@@ -12,10 +12,34 @@ const SPRITE_WIDTH = 220;
 const GROUND_BOTTOM = 2; // matches CSS #stage bottom -- diagnostics only
 const STRIDE_LENGTH_PX = 70; // px covered by one full walk cycle -- tunable
 const BOB_AMPLITUDE_PX = 2; // vertical bob amplitude while walking
-const WALK_FPS = 12; // ~83ms/frame
-const SAUNTER_FPS = 7; // slower, deliberate pace, same stride length -> no foot-skate
+const SAUNTER_FPS = 7; // the only walk pace now -- faster paces made the legs blur/flutter
 const WALK_PAUSE_INDEX = 9; // walk_10.png, 0-indexed -- the natural "stop" frame
 const HOME_MARGIN = 20; // px from the right edge for her home corner
+
+// Every pose's canvas has a different amount of empty transparent space
+// below her feet (measured directly from the art: idle ~190px, sit ~168px,
+// walk ~218px, etc, out of a 1000px canvas -- NOT consistent across poses).
+// Without correcting for this, "sit exactly on the taskbar" is impossible:
+// whichever offset makes one pose touch the ground makes every other pose
+// float or clip. GROUND_SCALE converts the measured 1000px-canvas margin
+// into a display-scale px shift applied on top of the bob.
+const GROUND_SCALE = SPRITE_WIDTH / 1000;
+const DEFAULT_GROUND_OFFSET = 190; // idle's margin, used for any unlisted state
+const STATE_GROUND_OFFSET = {
+  "sit-in-corner": 168,
+  "sit-blink": 168,
+  "sit-lookup": 162,
+  "sit-tailwag": 168,
+  walk: 220,
+  groom: 214,
+  "groom-pause": 214,
+  stretch: 205,
+  "wander-walk": 220,
+  "sleep-settle": 218,
+  "sleep-deep": 218,
+  "sleep-stir": 218,
+  "long-rest": 168,
+};
 
 const stageEl = document.getElementById("stage");
 const spriteEl = document.getElementById("sprite");
@@ -77,6 +101,7 @@ const state = {
   name: "boot",
   frame: 0,
   bobY: 0,
+  groundOffset: DEFAULT_GROUND_OFFSET * GROUND_SCALE,
 };
 
 function maxX() {
@@ -93,7 +118,7 @@ function setFacing(direction) {
 
 function applyTransform() {
   const flip = state.direction === 1 ? -1 : 1;
-  stageEl.style.transform = `translateY(${state.bobY}px) scaleX(${flip})`;
+  stageEl.style.transform = `translateY(${state.bobY + state.groundOffset}px) scaleX(${flip})`;
 }
 
 function setX(x) {
@@ -154,9 +179,10 @@ function stopFlies() {
 // Always ends by settling on WALK_PAUSE_INDEX (walk_10) once the target is
 // reached -- that's her natural "stop" pose. Callers decide what happens
 // next (sit, groom, walk again) rather than this function chaining on.
-async function walkTo(targetX, fps = WALK_FPS) {
-  setStateName("walk");
+async function walkTo(targetX, fps = SAUNTER_FPS) {
   targetX = Math.max(0, Math.min(maxX(), targetX));
+  if (Math.abs(targetX - state.x) < 1) return; // already there -- no walking in place
+  setStateName("walk");
   const frameCount = ASSETS.walk.length;
   const pxPerFrame = STRIDE_LENGTH_PX / frameCount;
   state.direction = targetX >= state.x ? 1 : -1;
@@ -289,6 +315,7 @@ async function longRestBehavior() {
   if (Math.abs(state.x - homeX()) > 2) {
     await walkTo(homeX(), SAUNTER_FPS);
   }
+  setFacing(-1);
   setStateName("sleep-settle");
   setFrame(ASSETS.sleep[0]); // curled, eyes open
   diag(true);
@@ -322,25 +349,26 @@ async function longRestBehavior() {
 // ---------- wander-walk: random point, then groom / sit / head home ----------
 async function wanderWalkBehavior() {
   setStateName("wander-walk");
-  await walkTo(rand(0, maxX()), rand(9, 14));
+  await walkTo(rand(0, maxX()), SAUNTER_FPS);
   // paused on walk_10 -- decide what happens next, per "she doesn't have to
   // keep marching": groom right here, sit a moment, or usually head home.
   const roll = Math.random();
   if (roll < 0.3) {
     await groomLoop(rand(10000, 15000));
-    setFrame(ASSETS.idle[1]);
+    setFrame(ASSETS.idle[0]);
   } else if (roll < 0.5) {
-    setFrame(ASSETS.idle[1]);
+    setFrame(ASSETS.idle[0]);
     await wait(rand(5000, 15000));
   } else {
     await walkTo(homeX(), SAUNTER_FPS);
+    setFacing(-1);
   }
 }
 
 // ---------- groom-pause: stop wherever she is and groom ----------
 async function groomPauseBehavior() {
   await groomLoop(rand(10000, 15000));
-  setFrame(ASSETS.idle[1]);
+  setFrame(ASSETS.idle[0]);
 }
 
 // ---------- behaviour picker (weighted, corner-biased) ----------
@@ -366,6 +394,7 @@ async function runBehaviour(name) {
   switch (name) {
     case "sit-in-corner":
       if (Math.abs(state.x - homeX()) > 2) await walkTo(homeX(), SAUNTER_FPS);
+      setFacing(-1);
       await sitInCorner(rand(20000, 60000));
       break;
     case "wander-walk":
@@ -386,7 +415,7 @@ async function runBehaviour(name) {
 async function behaviourLoop() {
   while (true) {
     await runBehaviour(pickBehaviour());
-    setFrame(ASSETS.idle[1]);
+    setFrame(ASSETS.idle[0]);
     await wait(rand(500, 1500)); // brief settle beat between behaviors
   }
 }
@@ -398,7 +427,7 @@ async function boot() {
   state.x = homeX();
   setX(state.x);
   setFacing(-1);
-  setFrame(ASSETS.idle[1]);
+  setFrame(ASSETS.idle[0]);
   diag(true);
 
   behaviourLoop();

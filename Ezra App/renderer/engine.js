@@ -13,8 +13,10 @@ const GROUND_BOTTOM = 2; // matches CSS #stage bottom -- diagnostics only
 const STRIDE_LENGTH_PX = 70; // px covered by one full walk cycle -- tunable
 const BOB_AMPLITUDE_PX = 2; // vertical bob amplitude while walking
 const SAUNTER_FPS = 7; // the only walk pace now -- faster paces made the legs blur/flutter
-const WALK_PAUSE_INDEX = 9; // walk_10.png, 0-indexed -- the natural "stop" frame
 const HOME_MARGIN = 20; // px from the right edge for her home corner
+const SETTLE_HOLD_MS = 120; // cat2 hold before dropping to cat1 when a walk stops
+const GLANCE_FRAME_INDEX = 6; // walk_07, 0-indexed -- substituted with look_02 ("Sq 7")
+const GLANCE_PAUSE_MS = 900; // roughly a second, holding the camera-glance pose
 
 // Every pose's canvas has a different amount of empty transparent space
 // below her feet (measured directly from the art: idle ~190px, sit ~168px,
@@ -126,6 +128,13 @@ function setX(x) {
   stageEl.style.left = `${state.x}px`;
 }
 
+// unclamped -- only for the rare wander-off-screen behavior, which needs to
+// push state.x past the normal [0, maxX()] viewport bounds
+function setXRaw(x) {
+  state.x = x;
+  stageEl.style.left = `${state.x}px`;
+}
+
 function setFrame(src) {
   spriteEl.src = src;
 }
@@ -176,22 +185,31 @@ function stopFlies() {
 }
 
 // ---------- walk: stride-locked translation + vertical bob, fixed timestep ----------
-// Always ends by settling on WALK_PAUSE_INDEX (walk_10) once the target is
-// reached -- that's her natural "stop" pose. Callers decide what happens
-// next (sit, groom, walk again) rather than this function chaining on.
-async function walkTo(targetX, fps = SAUNTER_FPS) {
-  targetX = Math.max(0, Math.min(maxX(), targetX));
+// Stops moving and animating the instant she reaches the target -- no
+// riding out leftover walk frames in place -- then settles through
+// cat2 -> cat1 (idle[1] -> idle[0]) as her "coming to a stop" beat.
+// Callers decide what happens next (sit, groom, walk again).
+// { clamp: false } lets targetX go past the screen edges and skips the
+// viewport clamp on every step -- only used by the wander-off behavior,
+// which needs her to actually leave and re-enter the visible screen.
+// { settle: false } skips the cat2->cat1 stop beat, for when the caller
+// has more to do before she's meant to look settled (e.g. she's offscreen).
+async function walkTo(targetX, fps = SAUNTER_FPS, { clamp = true, settle = true } = {}) {
+  if (clamp) targetX = Math.max(0, Math.min(maxX(), targetX));
   if (Math.abs(targetX - state.x) < 1) return; // already there -- no walking in place
-  setStateName("walk");
+  setStateName(clamp ? "walk" : "wander-off");
   const frameCount = ASSETS.walk.length;
   const pxPerFrame = STRIDE_LENGTH_PX / frameCount;
+  const setPos = clamp ? setX : setXRaw;
   state.direction = targetX >= state.x ? 1 : -1;
   applyTransform();
 
   const clock = new FrameClock(fps);
   let lastTime = performance.now();
 
-  return new Promise((resolve) => {
+  let glanced = false; // only one camera-glance pause per walk leg, not every stride cycle
+
+  await new Promise((resolve) => {
     function step() {
       const now = performance.now();
       const dt = now - lastTime;
@@ -200,22 +218,33 @@ async function walkTo(targetX, fps = SAUNTER_FPS) {
 
       for (let s = 0; s < steps; s++) {
         const dx = targetX - state.x;
-        if (Math.abs(dx) > 0.01) {
-          if (Math.abs(dx) <= pxPerFrame) setX(targetX);
-          else setX(state.x + Math.sign(dx) * pxPerFrame);
+        if (Math.abs(dx) < 0.01) {
+          resolve();
+          return;
         }
+        if (Math.abs(dx) <= pxPerFrame) setPos(targetX);
+        else setPos(state.x + Math.sign(dx) * pxPerFrame);
 
         state.frame = clock.frame;
-        setFrame(ASSETS.walk[clock.frame]);
-
         const phase = (clock.frame / frameCount) * Math.PI * 2;
         state.bobY = -BOB_AMPLITUDE_PX * Math.abs(Math.sin(phase));
         applyTransform();
+
+        if (!glanced && clock.frame === GLANCE_FRAME_INDEX) {
+          glanced = true;
+          setFrame(ASSETS.look[1]); // "Sq 7" -- she pauses to glance at the viewer mid-stride
+          diag(true);
+          setTimeout(() => {
+            lastTime = performance.now(); // don't let the pause register as elapsed walk-time
+            requestAnimationFrame(step);
+          }, GLANCE_PAUSE_MS);
+          return;
+        }
+
+        setFrame(ASSETS.walk[clock.frame]);
         diag();
 
-        if (Math.abs(targetX - state.x) < 0.01 && clock.frame === WALK_PAUSE_INDEX) {
-          state.bobY = 0;
-          applyTransform();
+        if (Math.abs(targetX - state.x) < 0.01) {
           resolve();
           return;
         }
@@ -224,6 +253,15 @@ async function walkTo(targetX, fps = SAUNTER_FPS) {
     }
     requestAnimationFrame(step);
   });
+
+  if (!settle) return; // caller decides what happens next
+  state.bobY = 0;
+  applyTransform();
+  setFrame(ASSETS.idle[1]); // cat2
+  diag(true);
+  await wait(SETTLE_HOLD_MS);
+  setFrame(ASSETS.idle[0]); // cat1
+  diag(true);
 }
 
 // ---------- groom: paw-licking loop ----------
@@ -307,9 +345,10 @@ async function stretchBehavior() {
   await playFrames(ASSETS.stretch, [300, 450, 600]); // 1 -> 2 -> 3
   await wait(1000); // hold frame 3 ~1s
   await playFrames([ASSETS.stretch[1], ASSETS.stretch[0]], [400, 300]); // 3 -> 2 -> 1
+  setFrame(ASSETS.idle[0]); // settle onto standing idle rather than freezing on the stretch pose
 }
 
-// ---------- long-rest: walk to corner, sleep with breathing bob + Zzz, wake, stretch ----------
+// ---------- long-rest: walk to corner, sleep (still, Zzz), wake, stretch ----------
 async function longRestBehavior() {
   setStateName("long-rest");
   if (Math.abs(state.x - homeX()) > 2) {
@@ -326,15 +365,9 @@ async function longRestBehavior() {
   zzzEl.style.display = "block";
   diag(true);
 
-  const sleepEnd = performance.now() + rand(60000, 180000);
-  while (performance.now() < sleepEnd) {
-    state.bobY = -1;
-    applyTransform();
-    await wait(1500);
-    state.bobY = 0;
-    applyTransform();
-    await wait(1500);
-  }
+  // holds still -- no Y-bob. Breathing will come from a dedicated
+  // lung-expansion sprite frame later, not a fake up/down motion.
+  await wait(rand(60000, 180000));
   zzzEl.style.display = "none";
 
   setStateName("sleep-stir");
@@ -350,7 +383,7 @@ async function longRestBehavior() {
 async function wanderWalkBehavior() {
   setStateName("wander-walk");
   await walkTo(rand(0, maxX()), SAUNTER_FPS);
-  // paused on walk_10 -- decide what happens next, per "she doesn't have to
+  // settled on cat1 -- decide what happens next, per "she doesn't have to
   // keep marching": groom right here, sit a moment, or usually head home.
   const roll = Math.random();
   if (roll < 0.3) {
@@ -371,6 +404,18 @@ async function groomPauseBehavior() {
   setFrame(ASSETS.idle[0]);
 }
 
+// ---------- wander-off: rarely, she walks clean off the edge of the
+// screen, stays gone a while, then wanders back in on her own ----------
+async function wanderOffScreenBehavior() {
+  setStateName("wander-off");
+  const exitLeft = Math.random() < 0.5;
+  const exitX = exitLeft ? -SPRITE_WIDTH - 40 : maxX() + SPRITE_WIDTH + 40;
+  await walkTo(exitX, SAUNTER_FPS, { clamp: false, settle: false });
+  await wait(rand(15000, 45000)); // gone for a while before wandering back in
+  await walkTo(homeX(), SAUNTER_FPS, { clamp: false });
+  setFacing(-1);
+}
+
 // ---------- behaviour picker (weighted, corner-biased) ----------
 const BEHAVIOURS = [
   { name: "sit-in-corner", weight: 45 },
@@ -378,6 +423,7 @@ const BEHAVIOURS = [
   { name: "groom-pause", weight: 15 },
   { name: "stretch", weight: 10 },
   { name: "long-rest", weight: 5 },
+  { name: "wander-off", weight: 3 }, // rare -- keep this low
 ];
 const TOTAL_WEIGHT = BEHAVIOURS.reduce((sum, b) => sum + b.weight, 0);
 
@@ -396,6 +442,7 @@ async function runBehaviour(name) {
       if (Math.abs(state.x - homeX()) > 2) await walkTo(homeX(), SAUNTER_FPS);
       setFacing(-1);
       await sitInCorner(rand(20000, 60000));
+      await stretchBehavior(); // gets up onto 4 legs before whatever's next
       break;
     case "wander-walk":
       await wanderWalkBehavior();
@@ -408,6 +455,9 @@ async function runBehaviour(name) {
       break;
     case "long-rest":
       await longRestBehavior();
+      break;
+    case "wander-off":
+      await wanderOffScreenBehavior();
       break;
   }
 }

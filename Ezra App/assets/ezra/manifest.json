@@ -64,6 +64,29 @@
       "width": 1000,
       "height": 1000,
       "note": "This is the POST-catnip reaction animation (01/02 = rolling on her back, alternate; 03 = sprawled settle; 04 = front-facing stare — the only genuinely front-facing frame in the whole asset set). The lead-in 'taking catnip' action (approach/sniff/bite) does not exist yet — known gap, not blocking."
+    },
+    "groom": {
+      "frames": 3,
+      "faces": "left",
+      "width": 1000,
+      "height": 1000,
+      "note": "paw-licking loop: 01/03 = mid-lick, eyes closed (near-identical); 02 = eyes open. Standing three-legged pose, usable stopped-in-place from idle, sit, or mid-walk."
+    },
+    "tailwag": {
+      "frames": 4,
+      "faces": "left",
+      "width": 1000,
+      "height": 1000,
+      "note": "same body as sit_01 throughout, only the tail moves: 01 = curled in (matches sit_01 exactly), 02-04 = tail extended, sweeping through different angles. Only valid overlaid on the sit_01 body pose."
+    }
+  },
+  "sitVariants": {
+    "blink": {
+      "file": "sit_blink.png",
+      "faces": "left",
+      "width": 1000,
+      "height": 1000,
+      "note": "duplicate of sit_01 with eyes closed. Alternate sit_01 <-> sit_blink for a blink loop while seated. Not part of the sit[] sequence array -- a toggle, not a pose index."
     }
   },
   "props": {
@@ -79,10 +102,6 @@
     "reference": {
       "reason": "6 loose files in Drive root (Sq 1.png..Sq 6.png) — redundant walk-pose reference sheet, not a distinct pose. Excluded from production manifest per direction; kept only in the source tree.",
       "count": 6
-    },
-    "groom": {
-      "reason": "No frames exist yet (user is making these separately). Engine should reserve a 'groom' state slot that no-ops until frames are dropped in.",
-      "count": 0
     }
   },
   "oldToNew": {
@@ -140,6 +159,23 @@
     "props": {
       "Props/Food Tray/transparent/bowl_empty.png": "prop_bowl_empty.png",
       "Props/Food Tray/transparent/bowl_full.png": "prop_bowl_full.png"
+    },
+    "groom": {
+      "note": "source: Drive folder 'Paw licking' (added 2026-07-12, not in the original Cat Sq set at Phase 0). Keyed to transparency in this session -- border flood-fill plus a size-gated pass for background pockets fully enclosed by the silhouette (e.g. the gap between the raised paw and chest), since those aren't reachable from the image border. Mirrored into Body Parts/Ezra sprites/Poses/Paw licking/(transparent/) alongside the rest of the source tree.",
+      "Paw licking/1.png": "groom_01.png",
+      "Paw licking/2.png": "groom_02.png",
+      "Paw licking/3.png": "groom_03.png"
+    },
+    "tailwag": {
+      "note": "source: Drive folder 'Tail wag' (added 2026-07-12). Same keying process/caveat as groom.",
+      "Tail wag/1.png": "tailwag_01.png",
+      "Tail wag/2.png": "tailwag_02.png",
+      "Tail wag/3.png": "tailwag_03.png",
+      "Tail wag/4.png": "tailwag_04.png"
+    },
+    "sitVariants": {
+      "note": "source: file 'Blink 1.png' added to the Drive 'Cat sit' folder on 2026-07-12 (alongside the original 1.png/2.png). Same keying process/caveat as groom.",
+      "Cat sit/Blink 1.png": "sit_blink.png"
     }
   }
 }

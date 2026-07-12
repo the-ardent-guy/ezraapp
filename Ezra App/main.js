@@ -7,11 +7,15 @@ let lastSpriteBounds = null; // {x, y, width, height} in screen coordinates
 let lastIgnoring = true;
 
 function createWindow() {
-  const { width, height } = screen.getPrimaryDisplay().bounds;
+  // Use the work area (screen minus taskbar), not the full display bounds.
+  // With .bounds the window spans behind the taskbar and her ground line
+  // sits above it with a gap; .workArea stops exactly at the taskbar's top
+  // edge, so a small/zero ground offset puts her right on top of it.
+  const { x, y, width, height } = screen.getPrimaryDisplay().workArea;
 
   win = new BrowserWindow({
-    x: 0,
-    y: 0,
+    x,
+    y,
     width,
     height,
     frame: false,

@@ -4,22 +4,25 @@ window.onerror = (msg, url, line, col, error) => {
 console.log("engine.js starting, window.ezra =", typeof window.ezra);
 
 // ============================================================
-// Phase 1 checkpoint: manifest-driven core engine + one demo
-// sequence (walk with vertical bob -> eat at bowl -> back to
-// idle). Per EZRA_BUILD_BRIEF.md section 9, this is shown before
-// the full state machine (transition graph, all interaction
-// triggers, weighted picker) gets wired in.
+// v1 base state: she lives in the bottom-right corner. Weighted,
+// corner-biased behavior loop -- no cursor reactions in this pass.
 // ============================================================
 
 const SPRITE_WIDTH = 220;
-const GROUND_BOTTOM = 60; // px from bottom of screen, matches CSS
-const STRIDE_LENGTH_PX = 70; // px covered by one full walk cycle -- tunable, starting value
-const BOB_AMPLITUDE_PX = 2; // vertical bob amplitude, 1-3px per brief
-const WALK_FPS = 12; // ~83ms/frame, brief's starting value
-const SAUNTER_FPS = 7; // slower deliberate pace, same stride length -> no foot-skate
+const GROUND_BOTTOM = 2; // matches CSS #stage bottom -- diagnostics only
+const STRIDE_LENGTH_PX = 70; // px covered by one full walk cycle -- tunable
+const BOB_AMPLITUDE_PX = 2; // vertical bob amplitude while walking
+const WALK_FPS = 12; // ~83ms/frame
+const SAUNTER_FPS = 7; // slower, deliberate pace, same stride length -> no foot-skate
+const WALK_PAUSE_INDEX = 9; // walk_10.png, 0-indexed -- the natural "stop" frame
+const HOME_MARGIN = 20; // px from the right edge for her home corner
 
+const stageEl = document.getElementById("stage");
 const spriteEl = document.getElementById("sprite");
-const bowlEl = document.getElementById("bowl");
+const fliesEl = document.getElementById("flies");
+const fly1El = document.getElementById("fly1");
+const fly2El = document.getElementById("fly2");
+const zzzEl = document.getElementById("zzz");
 
 const pad2 = (n) => String(n).padStart(2, "0");
 const rand = (min, max) => min + Math.random() * (max - min);
@@ -40,11 +43,8 @@ async function loadManifest() {
   for (const [name, def] of Object.entries(manifest.states)) {
     ASSETS[name] = framePaths(name, def.frames);
   }
-  ASSETS.bowl = {
-    empty: `../assets/ezra/${manifest.props.bowl.empty}`,
-    full: `../assets/ezra/${manifest.props.bowl.full}`,
-  };
-  console.log("manifest loaded:", Object.keys(ASSETS).map((k) => `${k}:${(ASSETS[k].length ?? "prop")}`).join(", "));
+  ASSETS.sitBlink = `../assets/ezra/${manifest.sitVariants.blink.file}`;
+  console.log("manifest loaded:", Object.keys(ASSETS).map((k) => `${k}:${Array.isArray(ASSETS[k]) ? ASSETS[k].length : "single"}`).join(", "));
 }
 
 // ---------- fixed-timestep frame clock (independent of render-loop hiccups) ----------
@@ -58,9 +58,6 @@ class FrameClock {
     this.fps = fps;
     this.frameMs = 1000 / fps;
   }
-  // Advances frame(s) owed by dtMs. Returns how many frame-steps advanced
-  // (can be >1 if the render loop hiccupped) so callers can translate by
-  // exactly that many stride-steps -- keeps translation locked to frames.
   tick(dtMs, frameCount) {
     this.acc += dtMs;
     let steps = 0;
@@ -70,10 +67,6 @@ class FrameClock {
       steps++;
     }
     return steps;
-  }
-  reset() {
-    this.acc = 0;
-    this.frame = 0;
   }
 }
 
@@ -89,6 +82,9 @@ const state = {
 function maxX() {
   return window.innerWidth - SPRITE_WIDTH;
 }
+function homeX() {
+  return maxX() - HOME_MARGIN;
+}
 
 function setFacing(direction) {
   state.direction = direction;
@@ -97,12 +93,12 @@ function setFacing(direction) {
 
 function applyTransform() {
   const flip = state.direction === 1 ? -1 : 1;
-  spriteEl.style.transform = `translateY(${state.bobY}px) scaleX(${flip})`;
+  stageEl.style.transform = `translateY(${state.bobY}px) scaleX(${flip})`;
 }
 
 function setX(x) {
   state.x = Math.max(0, Math.min(maxX(), x));
-  spriteEl.style.left = `${state.x}px`;
+  stageEl.style.left = `${state.x}px`;
 }
 
 function setFrame(src) {
@@ -112,7 +108,7 @@ function setFrame(src) {
 function setStateName(name) {
   if (state.name !== name) {
     state.name = name;
-    diag();
+    diag(true);
   }
 }
 
@@ -125,7 +121,7 @@ function diag(force) {
   }
 }
 
-// ---------- oneshot playback helper (for eat/stretch/etc, not frame-locked) ----------
+// ---------- oneshot playback helper ----------
 async function playFrames(frames, holdsMs) {
   for (let i = 0; i < frames.length; i++) {
     state.frame = i;
@@ -135,29 +131,34 @@ async function playFrames(frames, holdsMs) {
   }
 }
 
-// ---------- idle: always a breathing ping-pong loop, never a frozen frame ----------
-async function idleLoop(signal) {
-  setStateName("idle");
-  let i = 0;
-  while (!signal.stopped) {
-    setFrame(ASSETS.idle[i % ASSETS.idle.length]);
-    state.frame = i % ASSETS.idle.length;
-    diag();
-    await wait(rand(700, 900));
-    i++;
-  }
+// ---------- fly dots (shown during sit_02 look-up) ----------
+let flyTimer = null;
+function startFlies() {
+  fliesEl.style.display = "block";
+  const tick = () => {
+    fly1El.style.left = `${rand(0, 52)}px`;
+    fly1El.style.top = `${rand(0, 52)}px`;
+    fly2El.style.left = `${rand(0, 52)}px`;
+    fly2El.style.top = `${rand(0, 52)}px`;
+    flyTimer = setTimeout(tick, rand(120, 280)); // jerky, irregular -- real flies don't glide
+  };
+  tick();
+}
+function stopFlies() {
+  fliesEl.style.display = "none";
+  if (flyTimer) clearTimeout(flyTimer);
+  flyTimer = null;
 }
 
 // ---------- walk: stride-locked translation + vertical bob, fixed timestep ----------
-// Walks to targetX. Always finishes on the walk cycle's contact frame
-// (index 0) rather than a hard cut, per "no hard cuts" rule -- once within
-// range of the target she keeps cycling frames (translating the remaining
-// distance) until frame 0 comes back around.
+// Always ends by settling on WALK_PAUSE_INDEX (walk_10) once the target is
+// reached -- that's her natural "stop" pose. Callers decide what happens
+// next (sit, groom, walk again) rather than this function chaining on.
 async function walkTo(targetX, fps = WALK_FPS) {
   setStateName("walk");
   targetX = Math.max(0, Math.min(maxX(), targetX));
   const frameCount = ASSETS.walk.length;
-  const pxPerFrame = STRIDE_LENGTH_PX / frameCount; // locks translation to stride -- kills foot-skating
+  const pxPerFrame = STRIDE_LENGTH_PX / frameCount;
   state.direction = targetX >= state.x ? 1 : -1;
   applyTransform();
 
@@ -169,34 +170,24 @@ async function walkTo(targetX, fps = WALK_FPS) {
       const now = performance.now();
       const dt = now - lastTime;
       lastTime = now;
-
       const steps = clock.tick(dt, frameCount);
 
       for (let s = 0; s < steps; s++) {
-        // Recompute per frame-step (not once per rAF callback): snap exactly
-        // to targetX on the final approaching step instead of letting a
-        // pxPerFrame-sized step overshoot past it -- an overshoot flips the
-        // sign next step and never converges (bounces forever, never <1px).
         const dx = targetX - state.x;
         if (Math.abs(dx) > 0.01) {
-          if (Math.abs(dx) <= pxPerFrame) {
-            setX(targetX);
-          } else {
-            setX(state.x + Math.sign(dx) * pxPerFrame);
-          }
+          if (Math.abs(dx) <= pxPerFrame) setX(targetX);
+          else setX(state.x + Math.sign(dx) * pxPerFrame);
         }
 
         state.frame = clock.frame;
         setFrame(ASSETS.walk[clock.frame]);
 
-        // vertical bob: two dips per 12-frame cycle, synced to step cadence
         const phase = (clock.frame / frameCount) * Math.PI * 2;
         state.bobY = -BOB_AMPLITUDE_PX * Math.abs(Math.sin(phase));
         applyTransform();
         diag();
 
-        // arrived at target AND landed on the contact frame (0) -> done
-        if (Math.abs(targetX - state.x) < 0.01 && clock.frame === 0) {
+        if (Math.abs(targetX - state.x) < 0.01 && clock.frame === WALK_PAUSE_INDEX) {
           state.bobY = 0;
           applyTransform();
           resolve();
@@ -209,55 +200,208 @@ async function walkTo(targetX, fps = WALK_FPS) {
   });
 }
 
-// ---------- eat-at-bowl hook ----------
-// Recipe per brief: up 250 -> down 250 -> hold-down 400 -> up; repeat 3-5 bites.
-async function eatAtBowl(bites = rand(3, 5)) {
-  setStateName("eat");
-  bowlEl.src = ASSETS.bowl.full;
-  for (let b = 0; b < Math.round(bites); b++) {
+// ---------- groom: paw-licking loop ----------
+async function groomLoop(durationMs) {
+  setStateName("groom");
+  const endAt = performance.now() + durationMs;
+  let i = 0;
+  while (performance.now() < endAt) {
+    state.frame = i % ASSETS.groom.length;
+    setFrame(ASSETS.groom[state.frame]);
+    diag();
+    await wait(rand(300, 450));
+    i++;
+  }
+}
+
+// ---------- sit-in-corner: blink loop with look-up and tail-wag interrupts ----------
+async function blinkLoop(durationMs) {
+  setStateName("sit-blink");
+  const endAt = performance.now() + durationMs;
+  while (performance.now() < endAt) {
     state.frame = 0;
-    setFrame(ASSETS.eat[0]); // up
-    diag(true);
-    await wait(250);
+    setFrame(ASSETS.sit[0]);
+    diag();
+    await wait(rand(2500, 4500)); // eyes open between blinks
     state.frame = 1;
-    setFrame(ASSETS.eat[1]); // down
-    diag(true);
-    await wait(250);
-    await wait(400); // hold-down
+    setFrame(ASSETS.sitBlink);
+    diag();
+    await wait(rand(120, 220)); // blink duration
   }
   state.frame = 0;
-  setFrame(ASSETS.eat[0]); // up, cycle ends head-up
-  bowlEl.src = ASSETS.bowl.empty;
+  setFrame(ASSETS.sit[0]);
+}
+
+async function lookUpAtFlies() {
+  setStateName("sit-lookup");
+  state.frame = 1;
+  setFrame(ASSETS.sit[1]); // sit_02
+  startFlies();
+  diag(true);
+  await wait(rand(10000, 12000)); // at least 10-12s, per direction
+  stopFlies();
+  state.frame = 0;
+  setFrame(ASSETS.sit[0]);
   diag(true);
 }
 
-// ---------- boot: the Phase 1 checkpoint demo ----------
+async function tailWagCycle(durationMs = rand(8000, 12000)) {
+  setStateName("sit-tailwag");
+  const endAt = performance.now() + durationMs;
+  let i = 0;
+  while (performance.now() < endAt) {
+    state.frame = i % ASSETS.tailwag.length;
+    setFrame(ASSETS.tailwag[state.frame]);
+    diag();
+    await wait(rand(300, 500));
+    i++;
+  }
+  state.frame = 0;
+  setFrame(ASSETS.sit[0]);
+}
+
+async function sitInCorner(totalMs) {
+  setStateName("sit-in-corner");
+  const endAt = performance.now() + totalMs;
+  while (performance.now() < endAt) {
+    await blinkLoop(rand(8000, 15000));
+    if (performance.now() >= endAt) break;
+    if (Math.random() < 0.75) {
+      await lookUpAtFlies();
+    } else {
+      await tailWagCycle();
+    }
+  }
+  setFrame(ASSETS.sit[0]);
+}
+
+// ---------- stretch: oneshot forward, hold, reverse ----------
+async function stretchBehavior() {
+  setStateName("stretch");
+  await playFrames(ASSETS.stretch, [300, 450, 600]); // 1 -> 2 -> 3
+  await wait(1000); // hold frame 3 ~1s
+  await playFrames([ASSETS.stretch[1], ASSETS.stretch[0]], [400, 300]); // 3 -> 2 -> 1
+}
+
+// ---------- long-rest: walk to corner, sleep with breathing bob + Zzz, wake, stretch ----------
+async function longRestBehavior() {
+  setStateName("long-rest");
+  if (Math.abs(state.x - homeX()) > 2) {
+    await walkTo(homeX(), SAUNTER_FPS);
+  }
+  setStateName("sleep-settle");
+  setFrame(ASSETS.sleep[0]); // curled, eyes open
+  diag(true);
+  await wait(rand(4000, 7000));
+
+  setStateName("sleep-deep");
+  setFrame(ASSETS.sleep[1]);
+  zzzEl.style.display = "block";
+  diag(true);
+
+  const sleepEnd = performance.now() + rand(60000, 180000);
+  while (performance.now() < sleepEnd) {
+    state.bobY = -1;
+    applyTransform();
+    await wait(1500);
+    state.bobY = 0;
+    applyTransform();
+    await wait(1500);
+  }
+  zzzEl.style.display = "none";
+
+  setStateName("sleep-stir");
+  setFrame(ASSETS.sleep[0]);
+  diag(true);
+  await wait(1200);
+
+  await stretchBehavior();
+  setFrame(ASSETS.sit[0]);
+}
+
+// ---------- wander-walk: random point, then groom / sit / head home ----------
+async function wanderWalkBehavior() {
+  setStateName("wander-walk");
+  await walkTo(rand(0, maxX()), rand(9, 14));
+  // paused on walk_10 -- decide what happens next, per "she doesn't have to
+  // keep marching": groom right here, sit a moment, or usually head home.
+  const roll = Math.random();
+  if (roll < 0.3) {
+    await groomLoop(rand(10000, 15000));
+    setFrame(ASSETS.idle[1]);
+  } else if (roll < 0.5) {
+    setFrame(ASSETS.idle[1]);
+    await wait(rand(5000, 15000));
+  } else {
+    await walkTo(homeX(), SAUNTER_FPS);
+  }
+}
+
+// ---------- groom-pause: stop wherever she is and groom ----------
+async function groomPauseBehavior() {
+  await groomLoop(rand(10000, 15000));
+  setFrame(ASSETS.idle[1]);
+}
+
+// ---------- behaviour picker (weighted, corner-biased) ----------
+const BEHAVIOURS = [
+  { name: "sit-in-corner", weight: 45 },
+  { name: "wander-walk", weight: 25 },
+  { name: "groom-pause", weight: 15 },
+  { name: "stretch", weight: 10 },
+  { name: "long-rest", weight: 5 },
+];
+const TOTAL_WEIGHT = BEHAVIOURS.reduce((sum, b) => sum + b.weight, 0);
+
+function pickBehaviour() {
+  let r = Math.random() * TOTAL_WEIGHT;
+  for (const b of BEHAVIOURS) {
+    if (r < b.weight) return b.name;
+    r -= b.weight;
+  }
+  return "sit-in-corner";
+}
+
+async function runBehaviour(name) {
+  switch (name) {
+    case "sit-in-corner":
+      if (Math.abs(state.x - homeX()) > 2) await walkTo(homeX(), SAUNTER_FPS);
+      await sitInCorner(rand(20000, 60000));
+      break;
+    case "wander-walk":
+      await wanderWalkBehavior();
+      break;
+    case "groom-pause":
+      await groomPauseBehavior();
+      break;
+    case "stretch":
+      await stretchBehavior();
+      break;
+    case "long-rest":
+      await longRestBehavior();
+      break;
+  }
+}
+
+async function behaviourLoop() {
+  while (true) {
+    await runBehaviour(pickBehaviour());
+    setFrame(ASSETS.idle[1]);
+    await wait(rand(500, 1500)); // brief settle beat between behaviors
+  }
+}
+
+// ---------- boot ----------
 async function boot() {
   await loadManifest();
 
-  state.x = window.innerWidth / 2;
+  state.x = homeX();
   setX(state.x);
   setFacing(-1);
-  setFrame(ASSETS.idle[0]);
+  setFrame(ASSETS.idle[1]);
   diag(true);
 
-  const idleSignal = { stopped: false };
-  let idleHandle = idleLoop(idleSignal);
-
-  await wait(2000); // settle in idle briefly so the loop is visible before walking
-
-  idleSignal.stopped = true;
-  await idleHandle;
-
-  // bowl prop sits at fixed CSS position (left:24px, bottom:24px, width:160px)
-  const bowlX = 24 + 80 - SPRITE_WIDTH / 2; // roughly centered over the bowl
-  await walkTo(bowlX, SAUNTER_FPS);
-  await eatAtBowl();
-
-  await walkTo(window.innerWidth / 2, WALK_FPS);
-
-  const restSignal = { stopped: false };
-  idleLoop(restSignal); // runs forever -- full state machine takes over from here next phase
+  behaviourLoop();
 }
 
 boot();

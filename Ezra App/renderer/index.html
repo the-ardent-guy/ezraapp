@@ -13,31 +13,72 @@
     overflow: hidden;
   }
 
-  #bowl {
+  #stage {
     position: fixed;
-    left: 24px;
-    bottom: 24px;
-    width: 160px;
+    bottom: 2px; /* ground line now = top of the taskbar (window uses workArea) */
+    width: 220px;
+    height: 220px;
     -webkit-user-select: none;
     user-select: none;
-    pointer-events: none;
   }
 
   #sprite {
-    position: fixed;
-    bottom: 60px;
+    position: absolute;
+    left: 0;
+    top: 0;
     width: 220px;
-    -webkit-user-select: none;
-    user-select: none;
     /* Deliberately NOT image-rendering: pixelated -- this is smooth vector
        art, not pixel art. Nearest-neighbor scaling jagged the edges when
        tried earlier; default (smooth) scaling is correct for this art. */
   }
+
+  /* Rough head-area anchor for sit_01/sit_02/sit_blink -- tune once visible. */
+  #flies {
+    position: absolute;
+    left: 40px;
+    top: 40px;
+    width: 60px;
+    height: 60px;
+    pointer-events: none;
+    display: none;
+  }
+  #flies .fly {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #333;
+    transition: left 0.1s ease-out, top 0.1s ease-out;
+  }
+
+  #zzz {
+    position: absolute;
+    left: 30px;
+    top: 10px;
+    pointer-events: none;
+    display: none;
+    font-family: sans-serif;
+    font-weight: bold;
+    color: #6a7fa8;
+    text-shadow: 0 0 2px rgba(255, 255, 255, 0.6);
+    animation: zzz-float 2.5s ease-in-out infinite;
+  }
+  @keyframes zzz-float {
+    0% { opacity: 0; transform: translateY(0); }
+    30% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-20px); }
+  }
 </style>
 </head>
 <body>
-  <img id="bowl" src="../assets/ezra/prop_bowl_empty.png" alt="bowl">
-  <img id="sprite" src="../assets/ezra/idle_01.png" alt="Ezra">
+  <div id="stage">
+    <img id="sprite" src="../assets/ezra/idle_02.png" alt="Ezra">
+    <div id="flies">
+      <div class="fly" id="fly1"></div>
+      <div class="fly" id="fly2"></div>
+    </div>
+    <div id="zzz">Z</div>
+  </div>
   <script src="engine.js"></script>
 </body>
 </html>

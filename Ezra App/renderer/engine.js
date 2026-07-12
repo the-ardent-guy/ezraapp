@@ -41,6 +41,7 @@ const STATE_GROUND_OFFSET = {
   "sleep-deep": 218,
   "sleep-stir": 218,
   "long-rest": 168,
+  "wander-off": 220,
 };
 
 const stageEl = document.getElementById("stage");
@@ -142,6 +143,8 @@ function setFrame(src) {
 function setStateName(name) {
   if (state.name !== name) {
     state.name = name;
+    state.groundOffset = (STATE_GROUND_OFFSET[name] ?? DEFAULT_GROUND_OFFSET) * GROUND_SCALE;
+    applyTransform();
     diag(true);
   }
 }
@@ -312,13 +315,16 @@ async function lookUpAtFlies() {
 async function tailWagCycle(durationMs = rand(8000, 12000)) {
   setStateName("sit-tailwag");
   const endAt = performance.now() + durationMs;
+  const frameCount = ASSETS.tailwag.length;
   let i = 0;
+  let dir = 1; // ping-pong (0->3->0->3...) so the tail sweeps back out instead of snapping
   while (performance.now() < endAt) {
-    state.frame = i % ASSETS.tailwag.length;
+    state.frame = i;
     setFrame(ASSETS.tailwag[state.frame]);
     diag();
     await wait(rand(300, 500));
-    i++;
+    if (i + dir >= frameCount || i + dir < 0) dir *= -1;
+    i += dir;
   }
   state.frame = 0;
   setFrame(ASSETS.sit[0]);
@@ -355,6 +361,18 @@ async function longRestBehavior() {
     await walkTo(homeX(), SAUNTER_FPS);
   }
   setFacing(-1);
+
+  // settle down before curling up -- idle -> sit_01 -> sit_02 -> sleep_01,
+  // not a straight stand-to-asleep cut
+  state.frame = 0;
+  setFrame(ASSETS.sit[0]);
+  diag(true);
+  await wait(rand(1000, 2000));
+  state.frame = 1;
+  setFrame(ASSETS.sit[1]);
+  diag(true);
+  await wait(rand(800, 1500));
+
   setStateName("sleep-settle");
   setFrame(ASSETS.sleep[0]); // curled, eyes open
   diag(true);
@@ -375,8 +393,7 @@ async function longRestBehavior() {
   diag(true);
   await wait(1200);
 
-  await stretchBehavior();
-  setFrame(ASSETS.sit[0]);
+  await stretchBehavior(); // ends standing on idle -- no forced re-seat after
 }
 
 // ---------- wander-walk: random point, then groom / sit / head home ----------

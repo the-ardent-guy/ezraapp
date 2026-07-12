@@ -29,12 +29,15 @@
     width: 220px;
     -webkit-user-select: none;
     user-select: none;
+    /* Deliberately NOT image-rendering: pixelated -- this is smooth vector
+       art, not pixel art. Nearest-neighbor scaling jagged the edges when
+       tried earlier; default (smooth) scaling is correct for this art. */
   }
 </style>
 </head>
 <body>
-  <img id="bowl" src="../assets/props/bowl_empty.png" alt="bowl">
-  <img id="sprite" src="../assets/poses/Cat idle/1.png" alt="Ezra">
-  <script src="renderer.js"></script>
+  <img id="bowl" src="../assets/ezra/prop_bowl_empty.png" alt="bowl">
+  <img id="sprite" src="../assets/ezra/idle_01.png" alt="Ezra">
+  <script src="engine.js"></script>
 </body>
 </html>

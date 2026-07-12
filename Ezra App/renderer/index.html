@@ -20,6 +20,21 @@
     height: 220px;
     -webkit-user-select: none;
     user-select: none;
+    z-index: 1; /* draw over the cushion, not behind it */
+  }
+
+  /* Static resting spot at her home corner -- placeholder maroon rectangle
+     for now, always visible regardless of what she's doing. right: 20px
+     matches HOME_MARGIN in engine.js -- keep these in sync if it changes. */
+  #cushion {
+    position: fixed;
+    right: 20px;
+    bottom: 2px;
+    width: 160px;
+    height: 16px;
+    background: #6b1f2a;
+    border-radius: 8px;
+    pointer-events: none;
   }
 
   #sprite {
@@ -51,10 +66,13 @@
     transition: left 0.1s ease-out, top 0.1s ease-out;
   }
 
+  /* Anchored near sleep_02's ear tips (measured ~x250-430,y520 on the
+     1000px canvas -> ~55px,85px at the 220px display scale). Tune once
+     visible -- same caveat as the #flies anchor above. */
   #zzz {
     position: absolute;
-    left: 30px;
-    top: 10px;
+    left: 55px;
+    top: 85px;
     pointer-events: none;
     display: none;
     font-family: sans-serif;
@@ -71,6 +89,7 @@
 </style>
 </head>
 <body>
+  <div id="cushion"></div>
   <div id="stage">
     <img id="sprite" src="../assets/ezra/idle_02.png" alt="Ezra">
     <div id="flies">

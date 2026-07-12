@@ -346,7 +346,20 @@ async function sitInCorner(totalMs) {
 }
 
 // ---------- stretch: oneshot forward, hold, reverse ----------
-async function stretchBehavior() {
+// Three separate places want to trigger this (the standalone "stretch"
+// behavior, getting up from sit-in-corner, settling in before long-rest)
+// -- without a cooldown they can fire back-to-back and she stretches
+// two or three times in a row, which no cat does. { force: true } is for
+// the standalone behavior, where a real stretch is the whole point.
+let lastStretchAt = -Infinity;
+const STRETCH_COOLDOWN_MS = 30000;
+
+async function stretchBehavior({ force = false } = {}) {
+  if (!force && performance.now() - lastStretchAt < STRETCH_COOLDOWN_MS) {
+    setFrame(ASSETS.idle[0]); // just stretched recently -- stand up quietly instead
+    return;
+  }
+  lastStretchAt = performance.now();
   setStateName("stretch");
   await playFrames(ASSETS.stretch, [300, 450, 600]); // 1 -> 2 -> 3
   await wait(1000); // hold frame 3 ~1s
@@ -361,6 +374,7 @@ async function longRestBehavior() {
     await walkTo(homeX(), SAUNTER_FPS);
   }
   setFacing(-1);
+  await stretchBehavior(); // stretches before lying down, not an abrupt drop to sitting
 
   // settle down before curling up -- idle -> sit_01 -> sit_02 -> sleep_01,
   // not a straight stand-to-asleep cut
@@ -468,7 +482,7 @@ async function runBehaviour(name) {
       await groomPauseBehavior();
       break;
     case "stretch":
-      await stretchBehavior();
+      await stretchBehavior({ force: true }); // picked deliberately -- always show the real thing
       break;
     case "long-rest":
       await longRestBehavior();

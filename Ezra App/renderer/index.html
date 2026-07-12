@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ezra</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    background: transparent;
+    overflow: hidden;
+  }
+
+  #bowl {
+    position: fixed;
+    left: 24px;
+    bottom: 24px;
+    width: 160px;
+    -webkit-user-select: none;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  #sprite {
+    position: fixed;
+    bottom: 60px;
+    width: 220px;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+</style>
+</head>
+<body>
+  <img id="bowl" src="../assets/props/bowl_empty.png" alt="bowl">
+  <img id="sprite" src="../assets/poses/Cat idle/1.png" alt="Ezra">
+  <script src="renderer.js"></script>
+</body>
+</html>

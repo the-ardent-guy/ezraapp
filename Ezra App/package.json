@@ -1,0 +1,12 @@
+{
+  "name": "ezra-desktop-cat",
+  "version": "0.1.0",
+  "description": "Ezra the desktop cat",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^31.7.7"
+  }
+}

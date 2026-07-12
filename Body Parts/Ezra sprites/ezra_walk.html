@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ezra Walk Sprite Animation</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #sprite {
+    image-rendering: pixelated;
+    max-width: 90vw;
+    max-height: 90vh;
+  }
+
+  #speedBar {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    background: rgba(0, 0, 0, 0.55);
+    border-radius: 999px;
+    font-family: system-ui, sans-serif;
+    font-size: 13px;
+    color: #fff;
+    user-select: none;
+  }
+
+  #speedBar input[type="range"] {
+    width: 200px;
+  }
+</style>
+</head>
+<body>
+  <img id="sprite" src="Final walk/New sq/transparent/1.png" alt="Ezra">
+
+  <div id="speedBar">
+    <span>Speed</span>
+    <input type="range" id="speedSlider" min="0.1" max="3" step="0.05" value="1">
+    <span id="speedLabel">1.00x</span>
+  </div>
+
+  <script>
+    function buildFrames(path, count) {
+      const frames = [];
+      for (let i = 1; i <= count; i++) frames.push(`${path}/${i}.png`);
+      return frames;
+    }
+
+    // frameDurations (ms), when present, overrides fps per-frame for that clip.
+    // The whole clips list loops back to index 0 once the last clip finishes.
+    const clips = [
+      { name: "walk", frames: buildFrames("Final walk/New sq/transparent", 12), fps: 10, repeat: 2 },
+      { name: "stretch", frames: buildFrames("Poses/Stretch/transparent", 3), fps: 6, repeat: 1 },
+      {
+        name: "sleep-settle",
+        frames: buildFrames("Poses/Sleep/transparent", 2),
+        frameDurations: [5000, 8000], // hold curled-resting 5s, then deep sleep 8s, then wake
+        repeat: 1,
+      },
+      {
+        name: "wake",
+        frames: ["Poses/Sleep/transparent/1.png"], // stirring: eyes open, still curled
+        frameDurations: [1200],
+        repeat: 1,
+      },
+      { name: "wake-stretch", frames: buildFrames("Poses/Stretch/transparent", 3), fps: 6, repeat: 1 },
+      { name: "idle", frames: buildFrames("Poses/Cat idle/transparent", 2), fps: 2, repeat: 3 },
+      { name: "pounce", frames: buildFrames("Poses/Pounce/transparent", 3), fps: 8, repeat: 1 },
+      { name: "idle-after-pounce", frames: buildFrames("Poses/Cat idle/transparent", 2), fps: 2, repeat: 2 },
+    ];
+
+    const img = document.getElementById("sprite");
+    let clipIndex = 0;
+    let frameIndex = 0;
+    let repeatCount = 0;
+
+    let speed = 1;
+    const speedSlider = document.getElementById("speedSlider");
+    const speedLabel = document.getElementById("speedLabel");
+    speedSlider.addEventListener("input", () => {
+      speed = parseFloat(speedSlider.value);
+      speedLabel.textContent = `${speed.toFixed(2)}x`;
+    });
+
+    function tick() {
+      const clip = clips[clipIndex];
+      img.src = clip.frames[frameIndex];
+
+      const baseDuration = clip.frameDurations ? clip.frameDurations[frameIndex] : 1000 / clip.fps;
+
+      frameIndex++;
+      if (frameIndex >= clip.frames.length) {
+        frameIndex = 0;
+        repeatCount++;
+        if (repeatCount >= clip.repeat) {
+          repeatCount = 0;
+          clipIndex = (clipIndex + 1) % clips.length;
+        }
+      }
+
+      setTimeout(tick, baseDuration / speed);
+    }
+
+    tick();
+  </script>
+</body>
+</html>

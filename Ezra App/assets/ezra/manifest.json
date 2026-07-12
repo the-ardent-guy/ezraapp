@@ -1,0 +1,145 @@
+{
+  "source": "D:\\Ezra Making\\Body Parts\\Ezra sprites (verified byte-identical mirror of Google Drive 'Cat Sq' folder, id 1ZZXubRwAVCQev4JWl8bWJOJMYf5caM8a)",
+  "canvas": { "width": 1000, "height": 1000 },
+  "states": {
+    "walk": {
+      "frames": 12,
+      "faces": "left",
+      "width": 1000,
+      "height": 1000,
+      "note": "full stride cycle, verified as a real alternating gait, no duplicate/broken frames"
+    },
+    "idle": {
+      "frames": 2,
+      "faces": "left",
+      "width": 1000,
+      "height": 1000,
+      "note": "01 = settled stand, 02 = weight-shift"
+    },
+    "sit": {
+      "frames": 2,
+      "faces": "left",
+      "width": 1000,
+      "height": 1000,
+      "note": "01 = neutral sit, 02 = looking up"
+    },
+    "look": {
+      "frames": 2,
+      "faces": "left",
+      "width": 1000,
+      "height": 1000,
+      "note": "NOT a front-facing turn pose — body stays in left-facing walking profile, only head/eyes tilt toward camera. Designed as substitutes for walk frames #4 and #7 when she glances mid-stride; 02 (orig. Drive 'Sq 7.png') can also be used standalone as a lightweight 'look at camera' cue."
+    },
+    "sleep": {
+      "frames": 2,
+      "faces": "left",
+      "width": 1000,
+      "height": 1000,
+      "note": "01 = curled, eyes open (drowsy); 02 = curled, eyes closed (deep sleep)"
+    },
+    "stretch": {
+      "frames": 3,
+      "faces": "left",
+      "width": 1000,
+      "height": 1000,
+      "note": "01 = neutral stand, 02 = arched-back yawn, 03 = full downward stretch"
+    },
+    "pounce": {
+      "frames": 3,
+      "faces": "left",
+      "width": 1000,
+      "height": 1000,
+      "note": "01 = coiled crouch/ready, 02 = airborne leap, 03 = landed crouch"
+    },
+    "eat": {
+      "frames": 2,
+      "faces": "left",
+      "width": 1000,
+      "height": 1000,
+      "note": "01 = head up (sniff/alert), 02 = head down (eating)"
+    },
+    "catnip": {
+      "frames": 4,
+      "faces": "mixed",
+      "width": 1000,
+      "height": 1000,
+      "note": "This is the POST-catnip reaction animation (01/02 = rolling on her back, alternate; 03 = sprawled settle; 04 = front-facing stare — the only genuinely front-facing frame in the whole asset set). The lead-in 'taking catnip' action (approach/sniff/bite) does not exist yet — known gap, not blocking."
+    }
+  },
+  "props": {
+    "bowl": {
+      "empty": "prop_bowl_empty.png",
+      "full": "prop_bowl_full.png",
+      "width": 1536,
+      "height": 1024,
+      "note": "two states (empty/full), not a single static prop"
+    }
+  },
+  "excluded": {
+    "reference": {
+      "reason": "6 loose files in Drive root (Sq 1.png..Sq 6.png) — redundant walk-pose reference sheet, not a distinct pose. Excluded from production manifest per direction; kept only in the source tree.",
+      "count": 6
+    },
+    "groom": {
+      "reason": "No frames exist yet (user is making these separately). Engine should reserve a 'groom' state slot that no-ops until frames are dropped in.",
+      "count": 0
+    }
+  },
+  "oldToNew": {
+    "walk": {
+      "Final walk/New sq/transparent/1.png": "walk_01.png",
+      "Final walk/New sq/transparent/2.png": "walk_02.png",
+      "Final walk/New sq/transparent/3.png": "walk_03.png",
+      "Final walk/New sq/transparent/4.png": "walk_04.png",
+      "Final walk/New sq/transparent/5.png": "walk_05.png",
+      "Final walk/New sq/transparent/6.png": "walk_06.png",
+      "Final walk/New sq/transparent/7.png": "walk_07.png",
+      "Final walk/New sq/transparent/8.png": "walk_08.png",
+      "Final walk/New sq/transparent/9.png": "walk_09.png",
+      "Final walk/New sq/transparent/10.png": "walk_10.png",
+      "Final walk/New sq/transparent/11.png": "walk_11.png",
+      "Final walk/New sq/transparent/12.png": "walk_12.png"
+    },
+    "idle": {
+      "Poses/Cat idle/transparent/1.png": "idle_01.png",
+      "Poses/Cat idle/transparent/2.png": "idle_02.png"
+    },
+    "sit": {
+      "Poses/Cat sit/transparent/1.png": "sit_01.png",
+      "Poses/Cat sit/transparent/2.png": "sit_02.png"
+    },
+    "look": {
+      "Poses/Cat look/transparent/1.png": "look_01.png",
+      "Poses/Cat look/transparent/2.png": "look_02.png",
+      "note": "orig. Drive filenames: 1.png = 'Sq 4.png', 2.png = 'Sq 7.png' (already renamed to 1/2 in an earlier session)"
+    },
+    "sleep": {
+      "Poses/Sleep/transparent/1.png": "sleep_01.png",
+      "Poses/Sleep/transparent/2.png": "sleep_02.png"
+    },
+    "stretch": {
+      "Poses/Stretch/transparent/1.png": "stretch_01.png",
+      "Poses/Stretch/transparent/2.png": "stretch_02.png",
+      "Poses/Stretch/transparent/3.png": "stretch_03.png"
+    },
+    "pounce": {
+      "Poses/Pounce/transparent/1.png": "pounce_01.png",
+      "Poses/Pounce/transparent/2.png": "pounce_02.png",
+      "Poses/Pounce/transparent/3.png": "pounce_03.png"
+    },
+    "eat": {
+      "Poses/Eat/transparent/1.png": "eat_01.png",
+      "Poses/Eat/transparent/2.png": "eat_02.png"
+    },
+    "catnip": {
+      "Poses/Catnip/transparent/1.png": "catnip_01.png",
+      "Poses/Catnip/transparent/2.png": "catnip_02.png",
+      "Poses/Catnip/transparent/3.png": "catnip_03.png",
+      "Poses/Catnip/transparent/4.png": "catnip_04.png"
+    },
+    "props": {
+      "Props/Food Tray/transparent/bowl_empty.png": "prop_bowl_empty.png",
+      "Props/Food Tray/transparent/bowl_full.png": "prop_bowl_full.png"
+    }
+  }
+}

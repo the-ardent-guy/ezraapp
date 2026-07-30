@@ -1,0 +1,12 @@
+{
+  "name": "ezra-desktop-cat-mini",
+  "version": "0.1.0",
+  "description": "Ezra the desktop cat -- V1mini: sits on the cushion, blinks, occasionally looks up, occasionally gets up to stretch and walk",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^31.7.7"
+  }
+}

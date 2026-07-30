@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"
+    />
+    <title>Ezra Remote</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: -apple-system, "Segoe UI", sans-serif;
+        background: #1e1f24;
+        color: #e8e8ec;
+        padding: 14px;
+        user-select: none;
+      }
+      h2 {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #9a9aa5;
+        margin: 18px 0 8px;
+      }
+      h2:first-of-type {
+        margin-top: 0;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+      }
+      button {
+        background: #2c2d34;
+        border: 1px solid #3c3d46;
+        color: #e8e8ec;
+        padding: 8px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13px;
+      }
+      button:hover {
+        background: #3a3b44;
+      }
+      button:active {
+        background: #46474f;
+      }
+      button.danger {
+        border-color: #6b3a3a;
+      }
+      select {
+        background: #2c2d34;
+        border: 1px solid #3c3d46;
+        color: #e8e8ec;
+        padding: 6px 8px;
+        border-radius: 6px;
+        font-size: 13px;
+      }
+      #frameLabel {
+        font-size: 12px;
+        color: #9a9aa5;
+        margin-left: 4px;
+      }
+      #status {
+        font-size: 12px;
+        color: #6fcf97;
+        margin-top: 16px;
+        min-height: 16px;
+      }
+      .hint {
+        font-size: 11px;
+        color: #6a6b75;
+        margin-top: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Behaviors</h2>
+    <div class="row" id="behaviors">
+      <button data-behavior="blink">Blink</button>
+      <button data-behavior="look-up">Look up</button>
+      <button data-behavior="get-up-walk">Get up &amp; walk</button>
+    </div>
+    <div class="row" style="margin-top: 8px">
+      <button id="skip" class="danger">Skip</button>
+    </div>
+    <div class="hint">Interrupts whatever she's doing and, for the three buttons above, queues that behavior next.</div>
+
+    <h2>Pose preview</h2>
+    <div class="row">
+      <select id="poseSelect"></select>
+      <button id="prevFrame">&larr;</button>
+      <button id="nextFrame">&rarr;</button>
+      <span id="frameLabel"></span>
+    </div>
+    <div class="row" style="margin-top: 8px">
+      <button id="resumeAuto">Resume auto behavior</button>
+    </div>
+    <div class="hint">Freezes her on a single frame for art review, independent of the behavior loop.</div>
+
+    <div id="status"></div>
+
+    <script src="remote.js"></script>
+  </body>
+</html>

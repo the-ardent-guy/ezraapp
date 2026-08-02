@@ -366,10 +366,6 @@
   }
   .bento-card p{margin:0; color:var(--muted); font-size:0.94rem;}
 
-  .bento-a{grid-column:span 2; grid-row:span 2; justify-content:flex-end;}
-  .bento-a .emoji{font-size:2.4rem;}
-  .bento-a h3{font-size:1.7rem;}
-  .bento-b{grid-column:span 2; grid-row:span 1;}
   .bento-c{grid-column:span 1; grid-row:span 1;}
   .bento-d{
     grid-column:span 1; grid-row:span 1;
@@ -387,12 +383,13 @@
   .bento-d .stat b{color:var(--amber-2); display:block; font-size:0.7rem; margin-bottom:2px;}
   .bento-d .stat:last-child{margin-bottom:0;}
 
-  .bento-e{grid-column:span 4; grid-row:span 1;}
-  .bento-e .bento-e-intro{margin:0 0 22px; max-width:640px;}
+  .bento-e{grid-column:span 2; grid-row:span 2;}
+  .bento-e h3{font-size:1.5rem;}
+  .bento-e .bento-e-intro{margin:0 0 22px;}
   .bento-e-list{
-    display:grid;
-    grid-template-columns:repeat(3, 1fr);
-    gap:22px;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
   }
   .bento-e-item{display:flex; gap:14px; align-items:flex-start;}
   .bento-e-item .emoji{font-size:1.4rem; margin:0; padding:0; flex-shrink:0;}
@@ -414,19 +411,13 @@
 
   @media (max-width:900px){
     .bento{grid-template-columns:repeat(2, 1fr);}
-    .bento-a{grid-column:span 2;}
-    .bento-b{grid-column:span 2;}
     .bento-c{grid-column:span 1;}
     .bento-d{grid-column:span 1;}
-    .bento-e{grid-column:span 2;}
-    .bento-e-list{grid-template-columns:repeat(3, 1fr);}
-  }
-  @media (max-width:640px){
-    .bento-e-list{grid-template-columns:1fr;}
+    .bento-e{grid-column:span 2; grid-row:auto;}
   }
   @media (max-width:560px){
     .bento{grid-template-columns:1fr;}
-    .bento-a,.bento-b,.bento-c,.bento-d,.bento-e{grid-column:span 1; grid-row:auto;}
+    .bento-c,.bento-d,.bento-e{grid-column:span 1; grid-row:auto;}
   }
 
   /* ---------- DOWNLOAD ---------- */
@@ -585,18 +576,18 @@
         </div>
       </div>
 
-      <div class="bento-card bento-a">
+      <div class="bento-card bento-c">
         <span class="badge mono">Priority: Hers</span>
         <span class="emoji">🥣</span>
         <h3>Feeding Her</h3>
-        <p>Soon you'll be permitted to place a bowl in front of her and watch her decide, at her leisure, whether your offering clears the bar. It usually does. Try not to look proud about it.</p>
+        <p>A bowl, placed before her. She'll judge it at her leisure.</p>
       </div>
 
-      <div class="bento-card bento-b">
+      <div class="bento-card bento-c">
         <span class="badge mono">Soon-ish</span>
         <span class="emoji">🌿</span>
         <h3>The Zaza</h3>
-        <p>One tap of catnip and she goes from unbothered aristocrat to unhinged little gremlin in under a second flat. We accept no responsibility for what happens after.</p>
+        <p>One tap of catnip, full gremlin in under a second. No refunds.</p>
       </div>
 
       <div class="bento-card bento-c">

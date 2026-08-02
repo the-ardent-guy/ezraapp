@@ -7,9 +7,23 @@
 <meta name="description" content="Ezra is a small, orange, extremely unbothered cat who lives in the corner of your screen. Free. Not negotiable.">
 <style>
   @font-face{
-    font-family:'Playfair Display';
-    src:url('assets/fonts/PlayfairDisplay-Black.woff2') format('woff2');
-    font-weight:900;
+    font-family:'Poppins';
+    src:url('assets/fonts/Poppins-Regular.woff2') format('woff2');
+    font-weight:400;
+    font-style:normal;
+    font-display:swap;
+  }
+  @font-face{
+    font-family:'Poppins';
+    src:url('assets/fonts/Poppins-SemiBold.woff2') format('woff2');
+    font-weight:600;
+    font-style:normal;
+    font-display:swap;
+  }
+  @font-face{
+    font-family:'Poppins';
+    src:url('assets/fonts/Poppins-Bold.woff2') format('woff2');
+    font-weight:700;
     font-style:normal;
     font-display:swap;
   }
@@ -24,9 +38,9 @@
     --cream:#fbf2e6;
     --muted:#b8a690;
     --line:#382a1a;
-    --font-display:'Playfair Display',Georgia,'Times New Roman',serif;
     --font-mono:'Cascadia Mono','Cascadia Code',Consolas,'SFMono-Regular',Menlo,Monaco,'Courier New',monospace;
-    --font-body:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;
+    --font-display:var(--font-mono);
+    --font-body:'Poppins','Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;
   }
 
   *{box-sizing:border-box;}
@@ -57,8 +71,8 @@
 
   h1,h2,h3{
     font-family:var(--font-display);
-    font-weight:900;
-    letter-spacing:-0.02em;
+    font-weight:700;
+    letter-spacing:0;
   }
 
   /* ---------- NAV ---------- */
@@ -147,7 +161,7 @@
     min-height:640px;
   }
   .hero-copy{
-    padding:88px 32px 64px clamp(24px,5vw,64px);
+    padding:104px 32px 80px clamp(24px,5vw,64px);
     display:flex;
     flex-direction:column;
     justify-content:center;
@@ -158,12 +172,12 @@
     letter-spacing:0.12em;
     text-transform:uppercase;
     color:var(--amber-2);
-    margin-bottom:18px;
+    margin-bottom:24px;
   }
   .hero-copy h1{
     font-size:clamp(2.4rem, 4.6vw, 3.7rem);
-    line-height:1.03;
-    margin:0 0 20px;
+    line-height:1.05;
+    margin:0 0 28px;
     color:var(--cream);
     text-transform:uppercase;
   }
@@ -176,8 +190,8 @@
     letter-spacing:0.04em;
     color:var(--muted);
     text-transform:uppercase;
-    margin:0 0 22px;
-    padding-bottom:18px;
+    margin:0 0 30px;
+    padding-bottom:22px;
     border-bottom:1px solid var(--line);
   }
   .meta-line b{color:var(--amber-2); font-weight:700;}
@@ -185,16 +199,9 @@
     font-size:1.08rem;
     color:var(--muted);
     max-width:480px;
-    margin:0 0 16px;
+    margin:0 0 34px;
   }
-  .hero-copy .aside{
-    font-size:0.92rem;
-    color:var(--amber-3);
-    max-width:480px;
-    margin:0 0 30px;
-    font-style:italic;
-  }
-  .hero-cta-row{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:16px;}
+  .hero-cta-row{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:18px;}
   .btn{
     display:inline-flex;
     align-items:center;
@@ -262,7 +269,7 @@
     .hero-grid{grid-template-columns:1fr;}
     .hero-portrait{order:-1; min-height:52vh;}
     .hero-copy{padding:44px 24px 56px;}
-    .hero-copy .lede,.hero-copy .aside{max-width:none;}
+    .hero-copy .lede{max-width:none;}
   }
 
   /* ---------- SECTION HEADINGS ---------- */
@@ -493,8 +500,7 @@
       <span class="kicker">Desktop Pet / Uninvited</span>
       <h1>Your desktop<br>has an owner<br><span>now.</span></h1>
       <p class="meta-line">Status: <b>not technically alive, still running</b> &nbsp;·&nbsp; mood: <b>unbothered</b> &nbsp;·&nbsp; price: <b>free (for now)</b></p>
-      <p class="lede">Ezra is a very small, very orange cat who has claimed a corner of your screen and has no intention of discussing it further. She sits, she wanders, she naps, she judges. Mostly you.</p>
-      <p class="aside">She's not around to see this page. The app doesn't seem to know that, and honestly, neither do we. She lives on here anyway. Try to keep up.</p>
+      <p class="lede">A very small, very orange cat has claimed a corner of your screen. She sits, wanders, naps, and judges. Mostly you.</p>
       <div class="hero-cta-row">
         <a class="btn btn-primary" href="https://github.com/the-ardent-guy/ezraapp/releases/latest">Download for Windows</a>
         <a class="btn btn-ghost" href="https://github.com/the-ardent-guy/ezraapp/releases/latest">Download for Mac</a>

@@ -3,9 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ezra — A Desktop Cat Who Outranks You</title>
+<title>Ezra: A Desktop Cat Who Outranks You</title>
 <meta name="description" content="Ezra is a small, orange, extremely unbothered cat who lives in the corner of your screen. Free. Not negotiable.">
 <style>
+  @font-face{
+    font-family:'Playfair Display';
+    src:url('assets/fonts/PlayfairDisplay-Black.woff2') format('woff2');
+    font-weight:900;
+    font-style:normal;
+    font-display:swap;
+  }
+
   :root{
     --bg-0:#100c08;
     --bg-1:#1a130c;
@@ -16,7 +24,7 @@
     --cream:#fbf2e6;
     --muted:#b8a690;
     --line:#382a1a;
-    --font-display:'Arial Black','Segoe UI',Arial,sans-serif;
+    --font-display:'Playfair Display',Georgia,'Times New Roman',serif;
     --font-mono:'Cascadia Mono','Cascadia Code',Consolas,'SFMono-Regular',Menlo,Monaco,'Courier New',monospace;
     --font-body:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;
   }
@@ -79,8 +87,7 @@
     width:34px;
     height:34px;
     object-fit:cover;
-    object-position:30% 35%;
-    transform:scale(1.6);
+    object-position:center;
     border-radius:50%;
     background:var(--bg-2);
   }
@@ -487,7 +494,7 @@
       <h1>Your desktop<br>has an owner<br><span>now.</span></h1>
       <p class="meta-line">Status: <b>not technically alive, still running</b> &nbsp;·&nbsp; mood: <b>unbothered</b> &nbsp;·&nbsp; price: <b>free (for now)</b></p>
       <p class="lede">Ezra is a very small, very orange cat who has claimed a corner of your screen and has no intention of discussing it further. She sits, she wanders, she naps, she judges. Mostly you.</p>
-      <p class="aside">She's not around to see this page. The app doesn't seem to know that, and honestly, neither do we. She lives on here anyway — try to keep up.</p>
+      <p class="aside">She's not around to see this page. The app doesn't seem to know that, and honestly, neither do we. She lives on here anyway. Try to keep up.</p>
       <div class="hero-cta-row">
         <a class="btn btn-primary" href="https://github.com/the-ardent-guy/ezraapp/releases/latest">Download for Windows</a>
         <a class="btn btn-ghost" href="https://github.com/the-ardent-guy/ezraapp/releases/latest">Download for Mac</a>
@@ -496,7 +503,7 @@
     </div>
     <div class="hero-portrait">
       <img src="assets/ezra-hero.png" alt="Ezra, a stylized orange tabby cat with a red bell collar, cropped in close on her head and shoulders">
-      <span class="portrait-caption mono">Fig. 01 — Ezra, mid-judgement</span>
+      <span class="portrait-caption mono">Fig. 01: Ezra, mid-judgement</span>
     </div>
   </div>
 </header>
@@ -504,7 +511,7 @@
 <section class="vibe">
   <div class="wrap">
     <span class="kicker mono">What She Does (Loosely)</span>
-    <p>Mostly she sits and radiates quiet, unearned authority over your screen. Every so often she'll stretch through a full yawn, glance sharply at something that isn't there, wander off mid-thought, and saunter back like nothing happened — all <b>without your input, consent, or applause.</b></p>
+    <p>Mostly she sits and radiates quiet, unearned authority over your screen. Every so often she'll stretch through a full yawn, glance sharply at something that isn't there, wander off mid-thought, and saunter back like nothing happened, all <b>without your input, consent, or applause.</b></p>
   </div>
 </section>
 
@@ -515,7 +522,7 @@
     <div class="section-head">
       <span class="kicker">Roadmap (Loose Term)</span>
       <h2>Things she'll eventually allow</h2>
-      <p>No dates. No promises. She works when she wants to — which, statistically, is never. We're not much better.</p>
+      <p>No dates. No promises. She works when she wants to (which, statistically, is never). We're not much better.</p>
     </div>
 
     <div class="bento">
@@ -576,7 +583,7 @@
       </a>
     </div>
     <div class="price-callout">
-      <p class="headline mono">Free — first 30 users only</p>
+      <p class="headline mono">Free: first 30 users only</p>
       <p>After that we'll decide what she's worth. Spoiler: more than you've paid for her attention so far, which was nothing, because she hasn't given you any.</p>
     </div>
     <p class="download-note">Both buttons open the latest release on GitHub. She was worth more than free. She's not going to charge you for it. Yet.</p>
@@ -585,7 +592,7 @@
 
 <footer>
   <div class="wrap">
-    <p class="love">Made with love — for Ezra, and for cats everywhere who also deserve to be mildly insufferable in app form.</p>
+    <p class="love">Made with love, for Ezra, and for cats everywhere who also deserve to be mildly insufferable in app form.</p>
     <a href="https://github.com/the-ardent-guy/ezraapp">github.com/the-ardent-guy/ezraapp</a>
   </div>
 </footer>

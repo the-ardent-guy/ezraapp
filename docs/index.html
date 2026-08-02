@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ezra — A Desktop Cat Who Will Tolerate You</title>
+<meta name="description" content="Ezra is a tiny animated orange cat who lives in the corner of your screen, made in memory of a very real, very good cat.">
+<style>
+  :root{
+    --bg-0:#120d09;
+    --bg-1:#1b140d;
+    --bg-2:#241a10;
+    --amber-1:#ffb347;
+    --amber-2:#ff8c1a;
+    --amber-3:#ffd9a0;
+    --cream:#fff3e0;
+    --muted:#c9b8a3;
+    --line:#3a2c1c;
+    --shadow:rgba(0,0,0,0.45);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255,140,26,0.15), transparent 60%),
+      var(--bg-0);
+    color:var(--cream);
+    font-family:'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+    line-height:1.5;
+    overflow-x:hidden;
+  }
+
+  img{max-width:100%; display:block;}
+
+  a{color:inherit;}
+
+  .wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding:0 24px;
+  }
+
+  /* ---------- NAV ---------- */
+  .nav{
+    position:sticky;
+    top:0;
+    z-index:50;
+    background:rgba(18,13,9,0.85);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav .wrap{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    height:64px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-weight:800;
+    font-size:1.25rem;
+    letter-spacing:0.5px;
+    color:var(--amber-3);
+    text-decoration:none;
+  }
+  .brand .dot{
+    width:10px;height:10px;border-radius:50%;
+    background:var(--amber-2);
+    box-shadow:0 0 12px 3px rgba(255,140,26,0.7);
+  }
+  .nav-links{display:flex; gap:28px; font-size:0.95rem;}
+  .nav-links a{text-decoration:none; color:var(--muted); transition:color .2s;}
+  .nav-links a:hover{color:var(--amber-1);}
+  .nav-cta{
+    background:linear-gradient(135deg,var(--amber-2),#e0680a);
+    color:#1a1108;
+    font-weight:700;
+    padding:9px 18px;
+    border-radius:999px;
+    text-decoration:none;
+    font-size:0.9rem;
+    box-shadow:0 4px 14px rgba(255,140,26,0.35);
+    white-space:nowrap;
+  }
+  @media (max-width:720px){
+    .nav-links{display:none;}
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    padding:64px 0 40px;
+    overflow:hidden;
+  }
+  .hero::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(circle at 78% 30%, rgba(255,150,40,0.22), transparent 55%);
+    pointer-events:none;
+  }
+  .hero-grid{
+    display:grid;
+    grid-template-columns:1.05fr 1fr;
+    align-items:center;
+    gap:20px;
+    position:relative;
+  }
+  .hero-copy h1{
+    font-size:clamp(2.3rem, 5vw, 3.6rem);
+    line-height:1.05;
+    margin:0 0 18px;
+    color:var(--cream);
+    letter-spacing:-0.5px;
+  }
+  .hero-copy h1 span{
+    background:linear-gradient(90deg,var(--amber-1),var(--amber-3));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .hero-copy .lede{
+    font-size:1.15rem;
+    color:var(--muted);
+    max-width:520px;
+    margin-bottom:28px;
+  }
+  .hero-cta-row{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:36px;}
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:14px 26px;
+    border-radius:12px;
+    text-decoration:none;
+    font-weight:700;
+    font-size:1rem;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .btn:hover{transform:translateY(-2px);}
+  .btn-primary{
+    background:linear-gradient(135deg,var(--amber-1),var(--amber-2));
+    color:#1a1108;
+    box-shadow:0 8px 24px rgba(255,140,26,0.35);
+  }
+  .btn-primary:hover{box-shadow:0 12px 30px rgba(255,140,26,0.5);}
+  .btn-ghost{
+    background:rgba(255,255,255,0.04);
+    color:var(--cream);
+    border:1px solid var(--line);
+  }
+  .btn-ghost:hover{border-color:var(--amber-2); background:rgba(255,140,26,0.08);}
+
+  .hero-image{
+    position:relative;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+  }
+  .hero-image .glow{
+    position:absolute;
+    width:110%;
+    height:110%;
+    background:radial-gradient(circle, rgba(255,160,50,0.35), transparent 65%);
+    filter:blur(10px);
+    z-index:0;
+  }
+  .hero-image img{
+    position:relative;
+    z-index:1;
+    width:100%;
+    max-width:440px;
+    border-radius:24px;
+    box-shadow:0 30px 70px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,180,80,0.15);
+  }
+
+  @media (max-width:900px){
+    .hero-grid{grid-template-columns:1fr; text-align:center;}
+    .hero-copy .lede{margin-left:auto; margin-right:auto;}
+    .hero-cta-row{justify-content:center;}
+    .hero-image{order:-1; margin-bottom:12px;}
+    .hero-image img{max-width:300px;}
+  }
+
+  /* ---------- MEMORIAL ---------- */
+  .memorial{
+    position:relative;
+    padding:10px 0 70px;
+  }
+  .memorial-card{
+    max-width:760px;
+    margin:0 auto;
+    background:linear-gradient(180deg, rgba(255,180,90,0.07), rgba(255,180,90,0.02));
+    border:1px solid rgba(255,180,90,0.18);
+    border-radius:20px;
+    padding:36px 40px;
+    text-align:center;
+  }
+  .memorial-card .paw{
+    font-size:1.6rem;
+    margin-bottom:14px;
+    opacity:0.85;
+  }
+  .memorial-card p{
+    font-size:1.08rem;
+    color:var(--amber-3);
+    margin:0 0 14px;
+  }
+  .memorial-card p:last-child{margin-bottom:0;}
+  .memorial-card .signoff{
+    font-size:0.9rem;
+    color:var(--muted);
+    font-style:italic;
+    margin-top:18px;
+  }
+  @media (max-width:600px){
+    .memorial-card{padding:28px 22px;}
+  }
+
+  /* ---------- SECTION HEADINGS ---------- */
+  section{padding:70px 0;}
+  .section-head{
+    text-align:center;
+    max-width:640px;
+    margin:0 auto 48px;
+  }
+  .section-head .kicker{
+    display:inline-block;
+    font-size:0.8rem;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--amber-2);
+    font-weight:700;
+    margin-bottom:12px;
+  }
+  .section-head h2{
+    font-size:clamp(1.8rem, 3.4vw, 2.6rem);
+    margin:0 0 14px;
+    color:var(--cream);
+  }
+  .section-head p{
+    color:var(--muted);
+    font-size:1.05rem;
+    margin:0;
+  }
+
+  .divider{
+    height:1px;
+    background:linear-gradient(90deg, transparent, var(--line), transparent);
+    margin:0 auto;
+    max-width:1180px;
+  }
+
+  /* ---------- FEATURES ---------- */
+  .features-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:24px;
+  }
+  .feature-card{
+    background:var(--bg-1);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:26px 22px 22px;
+    text-align:center;
+    transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+  }
+  .feature-card:hover{
+    transform:translateY(-6px);
+    border-color:rgba(255,140,26,0.4);
+    box-shadow:0 16px 40px rgba(0,0,0,0.4);
+  }
+  .feature-card .sprite-frame{
+    width:150px;
+    height:150px;
+    margin:0 auto 18px;
+    border-radius:16px;
+    background:radial-gradient(circle at 50% 40%, rgba(255,160,60,0.18), rgba(255,160,60,0.03) 70%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .feature-card .sprite-frame img{
+    width:130px;
+    height:130px;
+    object-fit:contain;
+    filter:drop-shadow(0 8px 14px rgba(0,0,0,0.4));
+  }
+  .feature-card h3{
+    margin:0 0 10px;
+    font-size:1.2rem;
+    color:var(--amber-3);
+  }
+  .feature-card p{
+    margin:0;
+    color:var(--muted);
+    font-size:0.95rem;
+  }
+
+  @media (max-width:900px){
+    .features-grid{grid-template-columns:repeat(2, 1fr);}
+  }
+  @media (max-width:600px){
+    .features-grid{grid-template-columns:1fr;}
+  }
+
+  /* ---------- COMING SOON ---------- */
+  .soon{
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 0%, rgba(255,140,26,0.09), transparent 65%),
+      var(--bg-1);
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+  }
+  .soon-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:22px;
+  }
+  .soon-card{
+    background:var(--bg-2);
+    border:1px dashed rgba(255,180,90,0.3);
+    border-radius:16px;
+    padding:26px 22px;
+    position:relative;
+  }
+  .soon-card .badge{
+    position:absolute;
+    top:-11px;
+    right:16px;
+    background:linear-gradient(135deg,var(--amber-1),var(--amber-2));
+    color:#1a1108;
+    font-size:0.7rem;
+    font-weight:800;
+    letter-spacing:0.5px;
+    padding:4px 10px;
+    border-radius:999px;
+    text-transform:uppercase;
+  }
+  .soon-card .emoji{font-size:2rem; margin-bottom:12px; display:block;}
+  .soon-card h3{margin:0 0 10px; color:var(--amber-3); font-size:1.15rem;}
+  .soon-card p{margin:0; color:var(--muted); font-size:0.95rem;}
+  .soon-tease{
+    text-align:center;
+    margin-top:34px;
+    color:var(--muted);
+    font-style:italic;
+    font-size:0.95rem;
+  }
+  @media (max-width:900px){
+    .soon-grid{grid-template-columns:1fr;}
+  }
+
+  /* ---------- DOWNLOAD ---------- */
+  .download{
+    text-align:center;
+  }
+  .download-buttons{
+    display:flex;
+    gap:20px;
+    justify-content:center;
+    flex-wrap:wrap;
+    margin-top:36px;
+  }
+  .platform-btn{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    background:var(--bg-1);
+    border:1px solid var(--line);
+    padding:18px 30px;
+    border-radius:16px;
+    text-decoration:none;
+    color:var(--cream);
+    min-width:230px;
+    justify-content:center;
+    transition:transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+  }
+  .platform-btn:hover{
+    transform:translateY(-4px);
+    border-color:var(--amber-2);
+    box-shadow:0 14px 34px rgba(255,140,26,0.25);
+  }
+  .platform-btn .icon{font-size:1.6rem;}
+  .platform-btn .label{text-align:left;}
+  .platform-btn .label .top{font-size:0.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:1px;}
+  .platform-btn .label .main{font-size:1.05rem; font-weight:700;}
+  .download-note{
+    margin-top:22px;
+    color:var(--muted);
+    font-size:0.85rem;
+  }
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    border-top:1px solid var(--line);
+    padding:36px 0;
+    text-align:center;
+    color:var(--muted);
+    font-size:0.85rem;
+  }
+  footer .heart{color:var(--amber-2);}
+  footer a{color:var(--amber-1); text-decoration:none;}
+  footer a:hover{text-decoration:underline;}
+
+  .fade-note{
+    color:var(--muted);
+    font-size:0.85rem;
+    text-align:center;
+    margin-top:10px;
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <a href="#" class="brand"><span class="dot"></span> Ezra</a>
+    <div class="nav-links">
+      <a href="#features">Behaviors</a>
+      <a href="#soon">Coming Soon</a>
+      <a href="#download">Download</a>
+    </div>
+    <a class="nav-cta" href="https://github.com/the-ardent-guy/ezraapp/releases/latest">Get Ezra</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <h1>A little orange cat<br><span>lives on your desktop now.</span></h1>
+      <p class="lede">Ezra sits in the corner of your screen — blinking, glancing around, wandering off and sauntering back, exactly like a cat who owns the place. Because she does.</p>
+      <div class="hero-cta-row">
+        <a class="btn btn-primary" href="https://github.com/the-ardent-guy/ezraapp/releases/latest">Download Ezra — it's free</a>
+        <a class="btn btn-ghost" href="#features">See what she does</a>
+      </div>
+    </div>
+    <div class="hero-image">
+      <div class="glow"></div>
+      <img src="assets/ezra-hero.png" alt="Ezra, a stylized orange tabby cat with a red bell collar, standing and glowing warmly">
+    </div>
+  </div>
+</header>
+
+<section class="memorial">
+  <div class="wrap">
+    <div class="memorial-card">
+      <div class="paw">🐾</div>
+      <p>Ezra is drawn from a real cat — one who used to sit exactly like this, in exactly this kind of light, in a home that felt a little warmer for having her in it. She isn't with us anymore.</p>
+      <p>This app is a small, stubborn way of keeping a piece of her around: her colors, her collar, her particular way of watching the room like she was in charge of it. If she makes you smile for a second while she ignores you completely, that's the idea. That's who she was.</p>
+      <p class="signoff">Made with love, for her — and now, for your desktop.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="features">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">What She Actually Does</span>
+      <h2>A full-time employee of doing whatever she wants</h2>
+      <p>Ezra has a rich inner life that does not include you. Here's what that looks like from the outside.</p>
+    </div>
+    <div class="features-grid">
+
+      <div class="feature-card">
+        <div class="sprite-frame"><img src="assets/sit_01.png" alt="Ezra sitting upright, alert"></div>
+        <h3>Sits. Judges.</h3>
+        <p>Her default state. She parks herself in your corner and radiates quiet, unearned authority over your entire workspace.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="sprite-frame"><img src="assets/look_02.png" alt="Ezra glancing up and to the side"></div>
+        <h3>Glances up (sometimes at flies)</h3>
+        <p>Every so often she snaps her attention to something above her. There is never anything there. She does not care that you know this.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="sprite-frame"><img src="assets/stretch_02.png" alt="Ezra mid-stretch with an open-mouth yawn"></div>
+        <h3>Stretches, wanders, saunters back</h3>
+        <p>Every now and then she gets up, has a full-body stretch and a yawn about it, wanders off-screen for a bit, and then reappears like nothing happened.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="sprite-frame"><img src="assets/walk_04.png" alt="Ezra walking across the screen"></div>
+        <h3>Walks with purpose (unknown to you)</h3>
+        <p>She has places to be. You will never know where. It is almost certainly nowhere.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="sprite-frame"><img src="assets/sleep_03.png" alt="Ezra curled up asleep, breathing slowly"></div>
+        <h3>Naps, with slow breathing</h3>
+        <p>She curls up and drifts off with a gentle rise-and-fall breathing animation. Statistically, this is what she'll be doing when you check on her.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="sprite-frame"><img src="assets/tailwag_02.png" alt="Ezra flicking her tail"></div>
+        <h3>Flicks her tail at you</h3>
+        <p>A tiny, precise tail flick that means something. We don't know what. Neither will you. That's the deal with cats.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="sprite-frame"><img src="assets/groom_01.png" alt="Ezra grooming herself"></div>
+        <h3>Grooms herself, mid-task</h3>
+        <p>She will stop whatever she's doing — which is nothing — to groom herself, because personal maintenance takes priority over you, always.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="sprite-frame"><img src="assets/sit_01.png" alt="Ezra sitting, blinking slowly"></div>
+        <h3>Blinks, at her own pace</h3>
+        <p>Slow, deliberate, occasionally aimed in your general direction. In cat terms this is basically a hug. Don't get used to it.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="sprite-frame"><img src="assets/groom_01.png" alt="Ezra existing quietly on the desktop"></div>
+        <h3>Exists. Beautifully. Nearby.</h3>
+        <p>Lightweight, quiet, and always exactly as present as she feels like being. No feeding required. Yet.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="soon" class="soon">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">On The Horizon</span>
+      <h2>Things she'll tolerate you doing, eventually</h2>
+      <p>She's not high-maintenance. She's selectively, majestically maintenance.</p>
+    </div>
+    <div class="soon-grid">
+
+      <div class="soon-card">
+        <span class="badge">Soon</span>
+        <span class="emoji">🥣</span>
+        <h3>Feeding her</h3>
+        <p>You'll be able to plop a bowl down and watch her decide, on her own schedule, whether your offering is worthy. It usually will be. Usually.</p>
+      </div>
+
+      <div class="soon-card">
+        <span class="badge">Soon</span>
+        <span class="emoji">🌿</span>
+        <h3>The Zaza (catnip)</h3>
+        <p>A little catnip, a lot of chaos. One tap and she goes from "dignified statue" to "feral little guy" in under a second. We are not responsible for what happens next.</p>
+      </div>
+
+      <div class="soon-card">
+        <span class="badge">Shh</span>
+        <span class="emoji">📦</span>
+        <h3>...and a few other things</h3>
+        <p>There's more sitting in the backlog than we're saying out loud right now. She's got range. You'll see.</p>
+      </div>
+
+    </div>
+    <p class="soon-tease">No promises on timelines. She works when she wants to. So, honestly, do we.</p>
+  </div>
+</section>
+
+<section id="download" class="download">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">Take Her Home</span>
+      <h2>Give her a corner of your screen</h2>
+      <p>Free, tiny, and completely indifferent to your feelings. Pick your platform.</p>
+    </div>
+    <div class="download-buttons">
+      <a class="platform-btn" href="https://github.com/the-ardent-guy/ezraapp/releases/latest">
+        <span class="icon">🪟</span>
+        <span class="label">
+          <span class="top">Windows</span>
+          <span class="main">Download for Windows</span>
+        </span>
+      </a>
+      <a class="platform-btn" href="https://github.com/the-ardent-guy/ezraapp/releases/latest">
+        <span class="icon">🍎</span>
+        <span class="label">
+          <span class="top">macOS</span>
+          <span class="main">Download for Mac</span>
+        </span>
+      </a>
+    </div>
+    <p class="download-note">Both links open the latest release on GitHub. Free forever. She was worth more than that anyway.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Built with <span class="heart">♥</span> in memory of a very real, very good cat.</p>
+    <p><a href="https://github.com/the-ardent-guy/ezraapp">github.com/the-ardent-guy/ezraapp</a></p>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -387,6 +387,24 @@
   .bento-d .stat b{color:var(--amber-2); display:block; font-size:0.7rem; margin-bottom:2px;}
   .bento-d .stat:last-child{margin-bottom:0;}
 
+  .bento-e{grid-column:span 4; grid-row:span 1;}
+  .bento-e .bento-e-intro{margin:0 0 22px; max-width:640px;}
+  .bento-e-list{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:22px;
+  }
+  .bento-e-item{display:flex; gap:14px; align-items:flex-start;}
+  .bento-e-item .emoji{font-size:1.4rem; margin:0; padding:0; flex-shrink:0;}
+  .bento-e-item b{
+    display:block;
+    color:var(--cream);
+    font-size:1rem;
+    text-transform:uppercase;
+    margin-bottom:4px;
+  }
+  .bento-e-item p{margin:0; color:var(--muted); font-size:0.88rem;}
+
   .soon-tease{
     margin-top:32px;
     color:var(--muted);
@@ -400,10 +418,15 @@
     .bento-b{grid-column:span 2;}
     .bento-c{grid-column:span 1;}
     .bento-d{grid-column:span 1;}
+    .bento-e{grid-column:span 2;}
+    .bento-e-list{grid-template-columns:repeat(3, 1fr);}
+  }
+  @media (max-width:640px){
+    .bento-e-list{grid-template-columns:1fr;}
   }
   @media (max-width:560px){
     .bento{grid-template-columns:1fr;}
-    .bento-a,.bento-b,.bento-c,.bento-d{grid-column:span 1; grid-row:auto;}
+    .bento-a,.bento-b,.bento-c,.bento-d,.bento-e{grid-column:span 1; grid-row:auto;}
   }
 
   /* ---------- DOWNLOAD ---------- */
@@ -532,6 +555,35 @@
     </div>
 
     <div class="bento">
+
+      <div class="bento-card bento-e">
+        <span class="badge mono">The Big One</span>
+        <h3>She's Going Interactive</h3>
+        <p class="bento-e-intro">Right now she mostly tolerates your existence from a distance. Next up, she starts responding to it. All of it lands together, not doled out one feature at a time.</p>
+        <div class="bento-e-list">
+          <div class="bento-e-item">
+            <span class="emoji">🐾</span>
+            <div>
+              <b>Cursor-whack</b>
+              <p>Get your mouse too close and she will swat at it. Repeatedly. You started this.</p>
+            </div>
+          </div>
+          <div class="bento-e-item">
+            <span class="emoji">🪟</span>
+            <div>
+              <b>Tab-hopping</b>
+              <p>She'll climb up onto your open windows and perch on the tab bar like she pays rent there.</p>
+            </div>
+          </div>
+          <div class="bento-e-item">
+            <span class="emoji">🔪</span>
+            <div>
+              <b>Window-scratching</b>
+              <p>Your windows are furniture now, apparently. Act accordingly.</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div class="bento-card bento-a">
         <span class="badge mono">Priority: Hers</span>

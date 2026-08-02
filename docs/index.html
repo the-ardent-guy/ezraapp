@@ -3,37 +3,36 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ezra — A Desktop Cat Who Will Tolerate You</title>
-<meta name="description" content="Ezra is a tiny animated orange cat who lives in the corner of your screen, made in memory of a very real, very good cat.">
+<title>Ezra — A Desktop Cat Who Outranks You</title>
+<meta name="description" content="Ezra is a small, orange, extremely unbothered cat who lives in the corner of your screen. Free. Not negotiable.">
 <style>
   :root{
-    --bg-0:#120d09;
-    --bg-1:#1b140d;
-    --bg-2:#241a10;
+    --bg-0:#100c08;
+    --bg-1:#1a130c;
+    --bg-2:#221909;
     --amber-1:#ffb347;
     --amber-2:#ff8c1a;
     --amber-3:#ffd9a0;
-    --cream:#fff3e0;
-    --muted:#c9b8a3;
-    --line:#3a2c1c;
-    --shadow:rgba(0,0,0,0.45);
+    --cream:#fbf2e6;
+    --muted:#b8a690;
+    --line:#382a1a;
+    --font-display:'Arial Black','Segoe UI',Arial,sans-serif;
+    --font-mono:'Cascadia Mono','Cascadia Code',Consolas,'SFMono-Regular',Menlo,Monaco,'Courier New',monospace;
+    --font-body:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;
   }
 
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
   body{
     margin:0;
-    background:
-      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255,140,26,0.15), transparent 60%),
-      var(--bg-0);
+    background:var(--bg-0);
     color:var(--cream);
-    font-family:'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
-    line-height:1.5;
+    font-family:var(--font-body);
+    line-height:1.55;
     overflow-x:hidden;
   }
 
   img{max-width:100%; display:block;}
-
   a{color:inherit;}
 
   .wrap{
@@ -42,12 +41,24 @@
     padding:0 24px;
   }
 
+  .mono{
+    font-family:var(--font-mono);
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+  }
+
+  h1,h2,h3{
+    font-family:var(--font-display);
+    font-weight:900;
+    letter-spacing:-0.02em;
+  }
+
   /* ---------- NAV ---------- */
   .nav{
     position:sticky;
     top:0;
     z-index:50;
-    background:rgba(18,13,9,0.85);
+    background:rgba(16,12,8,0.9);
     backdrop-filter:blur(8px);
     border-bottom:1px solid var(--line);
   }
@@ -55,318 +66,338 @@
     display:flex;
     align-items:center;
     justify-content:space-between;
-    height:64px;
+    height:68px;
+    gap:20px;
   }
   .brand{
     display:flex;
     align-items:center;
-    gap:10px;
-    font-weight:800;
-    font-size:1.25rem;
-    letter-spacing:0.5px;
-    color:var(--amber-3);
+    gap:12px;
     text-decoration:none;
   }
-  .brand .dot{
-    width:10px;height:10px;border-radius:50%;
-    background:var(--amber-2);
-    box-shadow:0 0 12px 3px rgba(255,140,26,0.7);
+  .brand img{
+    width:34px;
+    height:34px;
+    object-fit:cover;
+    object-position:30% 35%;
+    transform:scale(1.6);
+    border-radius:50%;
+    background:var(--bg-2);
   }
-  .nav-links{display:flex; gap:28px; font-size:0.95rem;}
-  .nav-links a{text-decoration:none; color:var(--muted); transition:color .2s;}
+  .brand .brand-mark{
+    overflow:hidden;
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    flex:none;
+  }
+  .brand .word{
+    font-family:var(--font-display);
+    font-weight:900;
+    font-size:1.3rem;
+    letter-spacing:-0.01em;
+    color:var(--cream);
+  }
+  .brand .tag{
+    font-family:var(--font-mono);
+    font-size:0.65rem;
+    color:var(--amber-2);
+    border:1px solid var(--line);
+    padding:2px 7px;
+    border-radius:4px;
+    letter-spacing:0.08em;
+  }
+  .nav-links{display:flex; align-items:center; gap:26px;}
+  .nav-links a{
+    text-decoration:none;
+    color:var(--muted);
+    transition:color .2s;
+    font-family:var(--font-mono);
+    font-size:0.78rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+  }
   .nav-links a:hover{color:var(--amber-1);}
   .nav-cta{
-    background:linear-gradient(135deg,var(--amber-2),#e0680a);
+    background:var(--amber-2);
     color:#1a1108;
-    font-weight:700;
+    font-weight:800;
     padding:9px 18px;
-    border-radius:999px;
     text-decoration:none;
-    font-size:0.9rem;
-    box-shadow:0 4px 14px rgba(255,140,26,0.35);
+    font-size:0.85rem;
     white-space:nowrap;
+    font-family:var(--font-mono);
+    letter-spacing:0.03em;
   }
-  @media (max-width:720px){
+  @media (max-width:760px){
     .nav-links{display:none;}
   }
 
   /* ---------- HERO ---------- */
-  .hero{
-    position:relative;
-    padding:64px 0 40px;
-    overflow:hidden;
-  }
-  .hero::before{
-    content:"";
-    position:absolute;
-    inset:0;
-    background:
-      radial-gradient(circle at 78% 30%, rgba(255,150,40,0.22), transparent 55%);
-    pointer-events:none;
-  }
   .hero-grid{
     display:grid;
-    grid-template-columns:1.05fr 1fr;
-    align-items:center;
-    gap:20px;
-    position:relative;
+    grid-template-columns:minmax(300px,540px) 1fr;
+    min-height:640px;
+  }
+  .hero-copy{
+    padding:88px 32px 64px clamp(24px,5vw,64px);
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+  }
+  .hero-copy .kicker{
+    font-family:var(--font-mono);
+    font-size:0.72rem;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--amber-2);
+    margin-bottom:18px;
   }
   .hero-copy h1{
-    font-size:clamp(2.3rem, 5vw, 3.6rem);
-    line-height:1.05;
-    margin:0 0 18px;
+    font-size:clamp(2.4rem, 4.6vw, 3.7rem);
+    line-height:1.03;
+    margin:0 0 20px;
     color:var(--cream);
-    letter-spacing:-0.5px;
+    text-transform:uppercase;
   }
   .hero-copy h1 span{
-    background:linear-gradient(90deg,var(--amber-1),var(--amber-3));
-    -webkit-background-clip:text;
-    background-clip:text;
-    color:transparent;
+    color:var(--amber-1);
   }
-  .hero-copy .lede{
-    font-size:1.15rem;
+  .meta-line{
+    font-family:var(--font-mono);
+    font-size:0.72rem;
+    letter-spacing:0.04em;
     color:var(--muted);
-    max-width:520px;
-    margin-bottom:28px;
+    text-transform:uppercase;
+    margin:0 0 22px;
+    padding-bottom:18px;
+    border-bottom:1px solid var(--line);
   }
-  .hero-cta-row{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:36px;}
+  .meta-line b{color:var(--amber-2); font-weight:700;}
+  .hero-copy .lede{
+    font-size:1.08rem;
+    color:var(--muted);
+    max-width:480px;
+    margin:0 0 16px;
+  }
+  .hero-copy .aside{
+    font-size:0.92rem;
+    color:var(--amber-3);
+    max-width:480px;
+    margin:0 0 30px;
+    font-style:italic;
+  }
+  .hero-cta-row{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:16px;}
   .btn{
     display:inline-flex;
     align-items:center;
     gap:8px;
-    padding:14px 26px;
-    border-radius:12px;
+    padding:15px 24px;
     text-decoration:none;
-    font-weight:700;
-    font-size:1rem;
-    transition:transform .15s ease, box-shadow .15s ease;
+    font-weight:800;
+    font-size:0.95rem;
+    transition:transform .15s ease, background .15s ease;
   }
   .btn:hover{transform:translateY(-2px);}
   .btn-primary{
-    background:linear-gradient(135deg,var(--amber-1),var(--amber-2));
+    background:var(--amber-2);
     color:#1a1108;
-    box-shadow:0 8px 24px rgba(255,140,26,0.35);
   }
-  .btn-primary:hover{box-shadow:0 12px 30px rgba(255,140,26,0.5);}
+  .btn-primary:hover{background:var(--amber-1);}
   .btn-ghost{
-    background:rgba(255,255,255,0.04);
+    background:transparent;
     color:var(--cream);
     border:1px solid var(--line);
   }
-  .btn-ghost:hover{border-color:var(--amber-2); background:rgba(255,140,26,0.08);}
+  .btn-ghost:hover{border-color:var(--amber-2); color:var(--amber-1);}
+  .price-line{
+    font-family:var(--font-mono);
+    font-size:0.78rem;
+    color:var(--amber-2);
+    letter-spacing:0.01em;
+    margin:0;
+  }
 
-  .hero-image{
+  .hero-portrait{
     position:relative;
-    display:flex;
-    justify-content:center;
-    align-items:center;
+    overflow:hidden;
+    min-height:420px;
+    background:var(--bg-1);
   }
-  .hero-image .glow{
+  .hero-portrait img{
     position:absolute;
-    width:110%;
-    height:110%;
-    background:radial-gradient(circle, rgba(255,160,50,0.35), transparent 65%);
-    filter:blur(10px);
-    z-index:0;
-  }
-  .hero-image img{
-    position:relative;
-    z-index:1;
+    inset:0;
     width:100%;
-    max-width:440px;
-    border-radius:24px;
-    box-shadow:0 30px 70px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,180,80,0.15);
+    height:100%;
+    object-fit:cover;
+    transform:scale(1.32);
+    transform-origin:52% 20%;
+  }
+  .hero-portrait::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(0deg, rgba(10,7,4,0.65) 0%, transparent 28%);
+  }
+  .portrait-caption{
+    position:absolute;
+    left:22px;
+    bottom:18px;
+    z-index:2;
+    font-family:var(--font-mono);
+    font-size:0.7rem;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--amber-3);
   }
 
   @media (max-width:900px){
-    .hero-grid{grid-template-columns:1fr; text-align:center;}
-    .hero-copy .lede{margin-left:auto; margin-right:auto;}
-    .hero-cta-row{justify-content:center;}
-    .hero-image{order:-1; margin-bottom:12px;}
-    .hero-image img{max-width:300px;}
-  }
-
-  /* ---------- MEMORIAL ---------- */
-  .memorial{
-    position:relative;
-    padding:10px 0 70px;
-  }
-  .memorial-card{
-    max-width:760px;
-    margin:0 auto;
-    background:linear-gradient(180deg, rgba(255,180,90,0.07), rgba(255,180,90,0.02));
-    border:1px solid rgba(255,180,90,0.18);
-    border-radius:20px;
-    padding:36px 40px;
-    text-align:center;
-  }
-  .memorial-card .paw{
-    font-size:1.6rem;
-    margin-bottom:14px;
-    opacity:0.85;
-  }
-  .memorial-card p{
-    font-size:1.08rem;
-    color:var(--amber-3);
-    margin:0 0 14px;
-  }
-  .memorial-card p:last-child{margin-bottom:0;}
-  .memorial-card .signoff{
-    font-size:0.9rem;
-    color:var(--muted);
-    font-style:italic;
-    margin-top:18px;
-  }
-  @media (max-width:600px){
-    .memorial-card{padding:28px 22px;}
+    .hero-grid{grid-template-columns:1fr;}
+    .hero-portrait{order:-1; min-height:52vh;}
+    .hero-copy{padding:44px 24px 56px;}
+    .hero-copy .lede,.hero-copy .aside{max-width:none;}
   }
 
   /* ---------- SECTION HEADINGS ---------- */
-  section{padding:70px 0;}
+  section{padding:76px 0;}
   .section-head{
-    text-align:center;
     max-width:640px;
-    margin:0 auto 48px;
+    margin:0 0 44px;
   }
   .section-head .kicker{
     display:inline-block;
-    font-size:0.8rem;
-    letter-spacing:2px;
+    font-family:var(--font-mono);
+    font-size:0.72rem;
+    letter-spacing:0.12em;
     text-transform:uppercase;
     color:var(--amber-2);
-    font-weight:700;
-    margin-bottom:12px;
+    margin-bottom:14px;
   }
   .section-head h2{
-    font-size:clamp(1.8rem, 3.4vw, 2.6rem);
+    font-size:clamp(1.7rem, 3vw, 2.4rem);
     margin:0 0 14px;
     color:var(--cream);
+    text-transform:uppercase;
   }
   .section-head p{
     color:var(--muted);
-    font-size:1.05rem;
+    font-size:1rem;
     margin:0;
+    max-width:520px;
   }
 
   .divider{
     height:1px;
-    background:linear-gradient(90deg, transparent, var(--line), transparent);
-    margin:0 auto;
-    max-width:1180px;
+    background:var(--line);
   }
 
-  /* ---------- FEATURES ---------- */
-  .features-grid{
-    display:grid;
-    grid-template-columns:repeat(3, 1fr);
-    gap:24px;
+  /* ---------- THE VIBE (flowing behaviors copy) ---------- */
+  .vibe{padding:56px 0;}
+  .vibe .kicker{
+    display:block;
+    font-family:var(--font-mono);
+    font-size:0.72rem;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--amber-2);
+    margin-bottom:16px;
   }
-  .feature-card{
-    background:var(--bg-1);
-    border:1px solid var(--line);
-    border-radius:18px;
-    padding:26px 22px 22px;
-    text-align:center;
-    transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease;
-  }
-  .feature-card:hover{
-    transform:translateY(-6px);
-    border-color:rgba(255,140,26,0.4);
-    box-shadow:0 16px 40px rgba(0,0,0,0.4);
-  }
-  .feature-card .sprite-frame{
-    width:150px;
-    height:150px;
-    margin:0 auto 18px;
-    border-radius:16px;
-    background:radial-gradient(circle at 50% 40%, rgba(255,160,60,0.18), rgba(255,160,60,0.03) 70%);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    overflow:hidden;
-  }
-  .feature-card .sprite-frame img{
-    width:130px;
-    height:130px;
-    object-fit:contain;
-    filter:drop-shadow(0 8px 14px rgba(0,0,0,0.4));
-  }
-  .feature-card h3{
-    margin:0 0 10px;
+  .vibe p{
     font-size:1.2rem;
+    line-height:1.6;
     color:var(--amber-3);
-  }
-  .feature-card p{
+    max-width:760px;
     margin:0;
-    color:var(--muted);
-    font-size:0.95rem;
   }
+  .vibe p b{color:var(--cream);}
 
-  @media (max-width:900px){
-    .features-grid{grid-template-columns:repeat(2, 1fr);}
-  }
-  @media (max-width:600px){
-    .features-grid{grid-template-columns:1fr;}
-  }
-
-  /* ---------- COMING SOON ---------- */
+  /* ---------- BENTO (coming soon) ---------- */
   .soon{
-    background:
-      radial-gradient(ellipse 60% 50% at 50% 0%, rgba(255,140,26,0.09), transparent 65%),
-      var(--bg-1);
+    background:var(--bg-1);
     border-top:1px solid var(--line);
     border-bottom:1px solid var(--line);
   }
-  .soon-grid{
+  .bento{
     display:grid;
-    grid-template-columns:repeat(3, 1fr);
-    gap:22px;
+    grid-template-columns:repeat(4, 1fr);
+    grid-auto-rows:minmax(150px, auto);
+    gap:16px;
   }
-  .soon-card{
+  .bento-card{
     background:var(--bg-2);
-    border:1px dashed rgba(255,180,90,0.3);
-    border-radius:16px;
-    padding:26px 22px;
-    position:relative;
+    border:1px solid var(--line);
+    padding:26px 26px 24px;
+    display:flex;
+    flex-direction:column;
+    transition:border-color .2s ease;
   }
-  .soon-card .badge{
-    position:absolute;
-    top:-11px;
-    right:16px;
-    background:linear-gradient(135deg,var(--amber-1),var(--amber-2));
-    color:#1a1108;
-    font-size:0.7rem;
-    font-weight:800;
-    letter-spacing:0.5px;
-    padding:4px 10px;
-    border-radius:999px;
+  .bento-card:hover{border-color:var(--amber-2);}
+  .bento-card .emoji{font-size:1.6rem; margin-bottom:auto; padding-bottom:16px;}
+  .bento-card .badge{
+    font-family:var(--font-mono);
+    font-size:0.65rem;
+    letter-spacing:0.1em;
+    color:var(--amber-2);
+    border:1px solid var(--line);
+    display:inline-block;
+    padding:3px 8px;
+    margin-bottom:14px;
+    align-self:flex-start;
+  }
+  .bento-card h3{
+    margin:0 0 10px;
+    color:var(--cream);
+    font-size:1.25rem;
     text-transform:uppercase;
   }
-  .soon-card .emoji{font-size:2rem; margin-bottom:12px; display:block;}
-  .soon-card h3{margin:0 0 10px; color:var(--amber-3); font-size:1.15rem;}
-  .soon-card p{margin:0; color:var(--muted); font-size:0.95rem;}
-  .soon-tease{
-    text-align:center;
-    margin-top:34px;
-    color:var(--muted);
-    font-style:italic;
-    font-size:0.95rem;
+  .bento-card p{margin:0; color:var(--muted); font-size:0.94rem;}
+
+  .bento-a{grid-column:span 2; grid-row:span 2; justify-content:flex-end;}
+  .bento-a .emoji{font-size:2.4rem;}
+  .bento-a h3{font-size:1.7rem;}
+  .bento-b{grid-column:span 2; grid-row:span 1;}
+  .bento-c{grid-column:span 1; grid-row:span 1;}
+  .bento-d{
+    grid-column:span 1; grid-row:span 1;
+    justify-content:center;
+    background:var(--bg-0);
   }
+  .bento-d .stat{
+    font-family:var(--font-mono);
+    font-size:0.72rem;
+    color:var(--muted);
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    margin:0 0 8px;
+  }
+  .bento-d .stat b{color:var(--amber-2); display:block; font-size:0.7rem; margin-bottom:2px;}
+  .bento-d .stat:last-child{margin-bottom:0;}
+
+  .soon-tease{
+    margin-top:32px;
+    color:var(--muted);
+    font-size:0.95rem;
+    font-style:italic;
+  }
+
   @media (max-width:900px){
-    .soon-grid{grid-template-columns:1fr;}
+    .bento{grid-template-columns:repeat(2, 1fr);}
+    .bento-a{grid-column:span 2;}
+    .bento-b{grid-column:span 2;}
+    .bento-c{grid-column:span 1;}
+    .bento-d{grid-column:span 1;}
+  }
+  @media (max-width:560px){
+    .bento{grid-template-columns:1fr;}
+    .bento-a,.bento-b,.bento-c,.bento-d{grid-column:span 1; grid-row:auto;}
   }
 
   /* ---------- DOWNLOAD ---------- */
-  .download{
-    text-align:center;
-  }
   .download-buttons{
     display:flex;
-    gap:20px;
-    justify-content:center;
+    gap:16px;
     flex-wrap:wrap;
-    margin-top:36px;
+    margin-top:32px;
   }
   .platform-btn{
     display:flex;
@@ -374,25 +405,37 @@
     gap:14px;
     background:var(--bg-1);
     border:1px solid var(--line);
-    padding:18px 30px;
-    border-radius:16px;
+    padding:18px 28px;
     text-decoration:none;
     color:var(--cream);
-    min-width:230px;
-    justify-content:center;
-    transition:transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+    min-width:220px;
+    transition:border-color .15s ease, transform .15s ease;
   }
   .platform-btn:hover{
-    transform:translateY(-4px);
+    transform:translateY(-3px);
     border-color:var(--amber-2);
-    box-shadow:0 14px 34px rgba(255,140,26,0.25);
   }
-  .platform-btn .icon{font-size:1.6rem;}
+  .platform-btn .icon{font-size:1.5rem;}
   .platform-btn .label{text-align:left;}
-  .platform-btn .label .top{font-size:0.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:1px;}
-  .platform-btn .label .main{font-size:1.05rem; font-weight:700;}
+  .platform-btn .label .top{font-family:var(--font-mono); font-size:0.68rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em;}
+  .platform-btn .label .main{font-size:1.02rem; font-weight:700;}
+  .price-callout{
+    margin-top:26px;
+    padding:16px 20px;
+    border:1px dashed var(--line);
+    max-width:560px;
+  }
+  .price-callout .headline{
+    font-family:var(--font-mono);
+    font-size:0.85rem;
+    letter-spacing:0.05em;
+    color:var(--amber-1);
+    text-transform:uppercase;
+    margin:0 0 6px;
+  }
+  .price-callout p{margin:0; color:var(--muted); font-size:0.9rem;}
   .download-note{
-    margin-top:22px;
+    margin-top:20px;
     color:var(--muted);
     font-size:0.85rem;
   }
@@ -401,19 +444,21 @@
   footer{
     border-top:1px solid var(--line);
     padding:36px 0;
-    text-align:center;
     color:var(--muted);
     font-size:0.85rem;
   }
-  footer .heart{color:var(--amber-2);}
-  footer a{color:var(--amber-1); text-decoration:none;}
+  footer .wrap{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  footer a{color:var(--amber-1); text-decoration:none; font-family:var(--font-mono); font-size:0.8rem;}
   footer a:hover{text-decoration:underline;}
-
-  .fade-note{
-    color:var(--muted);
-    font-size:0.85rem;
-    text-align:center;
-    margin-top:10px;
+  footer .love{margin:0; max-width:520px;}
+  @media (max-width:600px){
+    footer .wrap{flex-direction:column; align-items:flex-start; text-align:left;}
   }
 </style>
 </head>
@@ -421,110 +466,45 @@
 
 <nav class="nav">
   <div class="wrap">
-    <a href="#" class="brand"><span class="dot"></span> Ezra</a>
+    <a href="#" class="brand">
+      <span class="brand-mark"><img src="assets/ezra-logo.png" alt="Ezra's face, logo mark"></span>
+      <span class="word">EZRA</span>
+      <span class="tag mono">v1.0</span>
+    </a>
     <div class="nav-links">
-      <a href="#features">Behaviors</a>
       <a href="#soon">Coming Soon</a>
       <a href="#download">Download</a>
+      <a href="https://github.com/the-ardent-guy/ezraapp">Github</a>
     </div>
-    <a class="nav-cta" href="https://github.com/the-ardent-guy/ezraapp/releases/latest">Get Ezra</a>
+    <a class="nav-cta" href="https://github.com/the-ardent-guy/ezraapp/releases/latest">Get Ezra →</a>
   </div>
 </nav>
 
-<header class="hero">
-  <div class="wrap hero-grid">
+<header>
+  <div class="hero-grid">
     <div class="hero-copy">
-      <h1>A little orange cat<br><span>lives on your desktop now.</span></h1>
-      <p class="lede">Ezra sits in the corner of your screen — blinking, glancing around, wandering off and sauntering back, exactly like a cat who owns the place. Because she does.</p>
+      <span class="kicker">Desktop Pet / Uninvited</span>
+      <h1>Your desktop<br>has an owner<br><span>now.</span></h1>
+      <p class="meta-line">Status: <b>not technically alive, still running</b> &nbsp;·&nbsp; mood: <b>unbothered</b> &nbsp;·&nbsp; price: <b>free (for now)</b></p>
+      <p class="lede">Ezra is a very small, very orange cat who has claimed a corner of your screen and has no intention of discussing it further. She sits, she wanders, she naps, she judges. Mostly you.</p>
+      <p class="aside">She's not around to see this page. The app doesn't seem to know that, and honestly, neither do we. She lives on here anyway — try to keep up.</p>
       <div class="hero-cta-row">
-        <a class="btn btn-primary" href="https://github.com/the-ardent-guy/ezraapp/releases/latest">Download Ezra — it's free</a>
-        <a class="btn btn-ghost" href="#features">See what she does</a>
+        <a class="btn btn-primary" href="https://github.com/the-ardent-guy/ezraapp/releases/latest">Download for Windows</a>
+        <a class="btn btn-ghost" href="https://github.com/the-ardent-guy/ezraapp/releases/latest">Download for Mac</a>
       </div>
+      <p class="price-line mono">// free for the first 30 people who show up. everyone after that negotiates with her directly.</p>
     </div>
-    <div class="hero-image">
-      <div class="glow"></div>
-      <img src="assets/ezra-hero.png" alt="Ezra, a stylized orange tabby cat with a red bell collar, standing and glowing warmly">
+    <div class="hero-portrait">
+      <img src="assets/ezra-hero.png" alt="Ezra, a stylized orange tabby cat with a red bell collar, cropped in close on her head and shoulders">
+      <span class="portrait-caption mono">Fig. 01 — Ezra, mid-judgement</span>
     </div>
   </div>
 </header>
 
-<section class="memorial">
+<section class="vibe">
   <div class="wrap">
-    <div class="memorial-card">
-      <div class="paw">🐾</div>
-      <p>Ezra is drawn from a real cat — one who used to sit exactly like this, in exactly this kind of light, in a home that felt a little warmer for having her in it. She isn't with us anymore.</p>
-      <p>This app is a small, stubborn way of keeping a piece of her around: her colors, her collar, her particular way of watching the room like she was in charge of it. If she makes you smile for a second while she ignores you completely, that's the idea. That's who she was.</p>
-      <p class="signoff">Made with love, for her — and now, for your desktop.</p>
-    </div>
-  </div>
-</section>
-
-<div class="divider"></div>
-
-<section id="features">
-  <div class="wrap">
-    <div class="section-head">
-      <span class="kicker">What She Actually Does</span>
-      <h2>A full-time employee of doing whatever she wants</h2>
-      <p>Ezra has a rich inner life that does not include you. Here's what that looks like from the outside.</p>
-    </div>
-    <div class="features-grid">
-
-      <div class="feature-card">
-        <div class="sprite-frame"><img src="assets/sit_01.png" alt="Ezra sitting upright, alert"></div>
-        <h3>Sits. Judges.</h3>
-        <p>Her default state. She parks herself in your corner and radiates quiet, unearned authority over your entire workspace.</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="sprite-frame"><img src="assets/look_02.png" alt="Ezra glancing up and to the side"></div>
-        <h3>Glances up (sometimes at flies)</h3>
-        <p>Every so often she snaps her attention to something above her. There is never anything there. She does not care that you know this.</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="sprite-frame"><img src="assets/stretch_02.png" alt="Ezra mid-stretch with an open-mouth yawn"></div>
-        <h3>Stretches, wanders, saunters back</h3>
-        <p>Every now and then she gets up, has a full-body stretch and a yawn about it, wanders off-screen for a bit, and then reappears like nothing happened.</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="sprite-frame"><img src="assets/walk_04.png" alt="Ezra walking across the screen"></div>
-        <h3>Walks with purpose (unknown to you)</h3>
-        <p>She has places to be. You will never know where. It is almost certainly nowhere.</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="sprite-frame"><img src="assets/sleep_03.png" alt="Ezra curled up asleep, breathing slowly"></div>
-        <h3>Naps, with slow breathing</h3>
-        <p>She curls up and drifts off with a gentle rise-and-fall breathing animation. Statistically, this is what she'll be doing when you check on her.</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="sprite-frame"><img src="assets/tailwag_02.png" alt="Ezra flicking her tail"></div>
-        <h3>Flicks her tail at you</h3>
-        <p>A tiny, precise tail flick that means something. We don't know what. Neither will you. That's the deal with cats.</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="sprite-frame"><img src="assets/groom_01.png" alt="Ezra grooming herself"></div>
-        <h3>Grooms herself, mid-task</h3>
-        <p>She will stop whatever she's doing — which is nothing — to groom herself, because personal maintenance takes priority over you, always.</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="sprite-frame"><img src="assets/sit_01.png" alt="Ezra sitting, blinking slowly"></div>
-        <h3>Blinks, at her own pace</h3>
-        <p>Slow, deliberate, occasionally aimed in your general direction. In cat terms this is basically a hug. Don't get used to it.</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="sprite-frame"><img src="assets/groom_01.png" alt="Ezra existing quietly on the desktop"></div>
-        <h3>Exists. Beautifully. Nearby.</h3>
-        <p>Lightweight, quiet, and always exactly as present as she feels like being. No feeding required. Yet.</p>
-      </div>
-
-    </div>
+    <span class="kicker mono">What She Does (Loosely)</span>
+    <p>Mostly she sits and radiates quiet, unearned authority over your screen. Every so often she'll stretch through a full yawn, glance sharply at something that isn't there, wander off mid-thought, and saunter back like nothing happened — all <b>without your input, consent, or applause.</b></p>
   </div>
 </section>
 
@@ -533,31 +513,38 @@
 <section id="soon" class="soon">
   <div class="wrap">
     <div class="section-head">
-      <span class="kicker">On The Horizon</span>
-      <h2>Things she'll tolerate you doing, eventually</h2>
-      <p>She's not high-maintenance. She's selectively, majestically maintenance.</p>
+      <span class="kicker">Roadmap (Loose Term)</span>
+      <h2>Things she'll eventually allow</h2>
+      <p>No dates. No promises. She works when she wants to — which, statistically, is never. We're not much better.</p>
     </div>
-    <div class="soon-grid">
 
-      <div class="soon-card">
-        <span class="badge">Soon</span>
+    <div class="bento">
+
+      <div class="bento-card bento-a">
+        <span class="badge mono">Priority: Hers</span>
         <span class="emoji">🥣</span>
-        <h3>Feeding her</h3>
-        <p>You'll be able to plop a bowl down and watch her decide, on her own schedule, whether your offering is worthy. It usually will be. Usually.</p>
+        <h3>Feeding Her</h3>
+        <p>Soon you'll be permitted to place a bowl in front of her and watch her decide, at her leisure, whether your offering clears the bar. It usually does. Try not to look proud about it.</p>
       </div>
 
-      <div class="soon-card">
-        <span class="badge">Soon</span>
+      <div class="bento-card bento-b">
+        <span class="badge mono">Soon-ish</span>
         <span class="emoji">🌿</span>
-        <h3>The Zaza (catnip)</h3>
-        <p>A little catnip, a lot of chaos. One tap and she goes from "dignified statue" to "feral little guy" in under a second. We are not responsible for what happens next.</p>
+        <h3>The Zaza</h3>
+        <p>One tap of catnip and she goes from unbothered aristocrat to unhinged little gremlin in under a second flat. We accept no responsibility for what happens after.</p>
       </div>
 
-      <div class="soon-card">
-        <span class="badge">Shh</span>
+      <div class="bento-card bento-c">
+        <span class="badge mono">Classified</span>
         <span class="emoji">📦</span>
-        <h3>...and a few other things</h3>
-        <p>There's more sitting in the backlog than we're saying out loud right now. She's got range. You'll see.</p>
+        <h3>...And More</h3>
+        <p>There's more in the backlog than we're saying out loud. She's got range.</p>
+      </div>
+
+      <div class="bento-card bento-d">
+        <p class="stat"><b>ETA</b>when she feels like it</p>
+        <p class="stat"><b>Updates</b>could be anytime</p>
+        <p class="stat"><b>Version</b>v1.0 → v.eventually</p>
       </div>
 
     </div>
@@ -570,7 +557,7 @@
     <div class="section-head">
       <span class="kicker">Take Her Home</span>
       <h2>Give her a corner of your screen</h2>
-      <p>Free, tiny, and completely indifferent to your feelings. Pick your platform.</p>
+      <p>Free. Tiny. Emotionally unavailable. Pick your platform.</p>
     </div>
     <div class="download-buttons">
       <a class="platform-btn" href="https://github.com/the-ardent-guy/ezraapp/releases/latest">
@@ -588,14 +575,18 @@
         </span>
       </a>
     </div>
-    <p class="download-note">Both links open the latest release on GitHub. Free forever. She was worth more than that anyway.</p>
+    <div class="price-callout">
+      <p class="headline mono">Free — first 30 users only</p>
+      <p>After that we'll decide what she's worth. Spoiler: more than you've paid for her attention so far, which was nothing, because she hasn't given you any.</p>
+    </div>
+    <p class="download-note">Both buttons open the latest release on GitHub. She was worth more than free. She's not going to charge you for it. Yet.</p>
   </div>
 </section>
 
 <footer>
   <div class="wrap">
-    <p>Built with <span class="heart">♥</span> in memory of a very real, very good cat.</p>
-    <p><a href="https://github.com/the-ardent-guy/ezraapp">github.com/the-ardent-guy/ezraapp</a></p>
+    <p class="love">Made with love — for Ezra, and for cats everywhere who also deserve to be mildly insufferable in app form.</p>
+    <a href="https://github.com/the-ardent-guy/ezraapp">github.com/the-ardent-guy/ezraapp</a>
   </div>
 </footer>
 

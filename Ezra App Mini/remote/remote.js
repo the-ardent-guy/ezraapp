@@ -2,7 +2,7 @@
 // behaviors and stepping through raw pose frames while testing new art,
 // instead of waiting for the weighted random picker to get there.
 
-const POSES = ["sit", "sitBlink", "idle", "walk", "stretch", "look"];
+const POSES = ["sit", "sitBlink", "idle", "walk", "stretch", "look", "sleep", "tailwag", "groom"];
 
 let manifest = null;
 let currentPose = POSES[0];

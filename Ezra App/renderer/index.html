@@ -24,11 +24,13 @@
   }
 
   /* Static resting spot at her home corner -- placeholder maroon rectangle
-     for now, always visible regardless of what she's doing. right: 20px
-     matches HOME_MARGIN in engine.js -- keep these in sync if it changes. */
+     for now, always visible regardless of what she's doing. Cat's home spot
+     is flush to the edge (HOME_MARGIN 0 in engine.js); cushion is offset an
+     extra 28px (~0.75cm at 96 DPI) further left than her exact spot, by
+     request -- don't resync these two. */
   #cushion {
     position: fixed;
-    right: 20px;
+    right: 48px;
     bottom: 2px;
     width: 160px;
     height: 16px;

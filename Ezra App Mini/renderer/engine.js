@@ -18,10 +18,13 @@ const GROUND_SCALE = SPRITE_WIDTH / 1000;
 const DEFAULT_GROUND_OFFSET = 168; // sit_01's measured ground margin
 const STATE_GROUND_OFFSET = {
   sit: 168,
-  "sit-lookup": 162, // sit_02 -- tilted head shifts the measured offset slightly
+  "sit-lookup": 157, // sit_02 -- tilted head shifts the measured offset slightly (re-measured 2026-08-01 after a fresh art pass)
   idle: 190,
   walk: 220,
   stretch: 205,
+  sleep: 168, // all 5 frames recentered in-place to share this exact bottom margin (see manifest.json sleep note) -- ground-contact line holds steady across the whole sequence
+  tailwag: 168, // same body as sit_01 throughout -- bottom bbox margin drifts 163-186 across frames 1-4, but that's the tail lifting off the ground, not the body/paws shifting, so unlike sleep this does NOT need per-frame recentering
+  groom: 168, // seated sit_01 body pose throughout -- measured margins 170/171/171, close enough to sit's 168 to not need recentering (the small left-edge drift across frames is the raised paw, not the body)
 };
 
 const BLINK_HOLD_MS = [90, 160]; // eyes-closed duration range -- quick, not a slow fade
@@ -30,6 +33,16 @@ const LOOK_UP_CHANCE = 0.15; // rolled at each gap instead of a blink
 const LOOK_UP_HOLD_MS = [4000, 8000]; // how long she holds sit_02 before settling back
 const LOOK_UP_FLIES_CHANCE = 0.5; // of a look-up, how often it's because a fly's caught her eye vs. just glancing up
 const GET_UP_CHANCE = 0.1; // rolled at the same gap, alongside look-up -- getting up and walking off a while
+const SLEEP_CHANCE = 0.08; // rolled at the same gap -- settling down for a nap, straight from sit, no stretch/stand involved
+const SLEEP_TRANSITION_MS = [500, 450]; // lowering (frame 2), curling in (frame 3)
+const SLEEP_BREATH_MS = [1900, 2600]; // hold per breathing-loop frame (4 <-> 5) -- slow, deliberate, not a quick flicker
+const SLEEP_BREATH_CYCLES = [4, 9]; // number of full breath pairs before waking
+const ZZZ_START_CYCLE = 2; // breathing cycles in before the Zzz overlay appears -- not the instant she lies down, only once she's properly settled
+const TAILWAG_CHANCE = 0.12; // rolled at the same gap -- a quick tail flick, straight from sit, no stretch/stand involved
+const TAILWAG_FRAME_MS = [110, 170]; // hold per frame during the sweep -- snappy, not a slow drift
+const GROOM_CHANCE = 0.1; // rolled at the same gap -- a bout of paw-licking, straight from sit, no stretch/stand involved
+const GROOM_FRAME_MS = [220, 380]; // hold per frame within a lick cycle -- more deliberate than tailwag's flick, faster than sleep's breathing
+const GROOM_LICK_CYCLES = [2, 5]; // number of full lick cycles before settling back
 
 const GLANCE_PAUSE_MS = 900; // how long she holds the look-at-screen pose before stretching
 const STRIDE_LENGTH_PX = 70; // px covered by one full walk cycle -- tunable
@@ -43,6 +56,7 @@ const spriteEl = document.getElementById("sprite");
 const fliesEl = document.getElementById("flies");
 const fly1El = document.getElementById("fly1");
 const fly2El = document.getElementById("fly2");
+const zzzEl = document.getElementById("zzz");
 
 const rand = (min, max) => min + Math.random() * (max - min);
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -66,9 +80,12 @@ async function loadManifest() {
     walk: framePaths("walk", manifest.states.walk.frames),
     stretch: framePaths("stretch", manifest.states.stretch.frames),
     look: framePaths("look", manifest.states.look.frames), // 02 = standalone "look at camera" cue
+    sleep: framePaths("sleep", manifest.states.sleep.frames), // 01 = sit-matched, 02 = lowering, 03 = curled settle, 04/05 = breathing loop
+    tailwag: framePaths("tailwag", manifest.states.tailwag.frames), // 01 = curled in (matches sit_01), 02-04 = tail sweeping out
+    groom: framePaths("groom", manifest.states.groom.frames), // 01 = eyes open mid-lick, 02 = eyes closed paw lower, 03 = eyes closed paw raised
   };
   console.log(
-    `manifest loaded: sit:${ASSETS.sit.length}, sitBlink:single, idle:${ASSETS.idle.length}, walk:${ASSETS.walk.length}, stretch:${ASSETS.stretch.length}, look:${ASSETS.look.length}`
+    `manifest loaded: sit:${ASSETS.sit.length}, sitBlink:single, idle:${ASSETS.idle.length}, walk:${ASSETS.walk.length}, stretch:${ASSETS.stretch.length}, look:${ASSETS.look.length}, sleep:${ASSETS.sleep.length}, tailwag:${ASSETS.tailwag.length}, groom:${ASSETS.groom.length}`
   );
 }
 
@@ -197,6 +214,14 @@ function stopFlies() {
   fliesEl.style.display = "none";
   if (flyTimer) clearTimeout(flyTimer);
   flyTimer = null;
+}
+
+// ---------- Zzz overlay (shown partway through the sleep breathing loop) ----------
+function startZzz() {
+  zzzEl.style.display = "block";
+}
+function stopZzz() {
+  zzzEl.style.display = "none";
 }
 
 // ---------- sit baseline ----------
@@ -329,18 +354,95 @@ async function getUpAndWalk() {
   settleToSit();
 }
 
+// ---------- sleep: straight from sit, no stretch/stand -- she lowers in
+// place, curls up, breathes for a while, then reverses the same transition
+// back up into sit. Only the breathing hold is interruptible (skip cuts a
+// nap short); the lowering/curling/waking beats play straight through like
+// blink's and walk's own timing, so a skip can't freeze her mid-motion. ----------
+async function sleepBehavior() {
+  setStateName("sleep");
+  setFrame(ASSETS.sleep[1]); // lowering
+  diag();
+  await wait(SLEEP_TRANSITION_MS[0]);
+  setFrame(ASSETS.sleep[2]); // curled, settling
+  diag();
+  await wait(SLEEP_TRANSITION_MS[1]);
+
+  const cycles = Math.round(rand(SLEEP_BREATH_CYCLES[0], SLEEP_BREATH_CYCLES[1]));
+  for (let i = 0; i < cycles; i++) {
+    if (i === ZZZ_START_CYCLE) startZzz(); // only once she's been under a while, not the instant she lies down
+    setFrame(ASSETS.sleep[3]);
+    diag();
+    if (await interruptibleWait(rand(SLEEP_BREATH_MS[0], SLEEP_BREATH_MS[1]))) break;
+    setFrame(ASSETS.sleep[4]);
+    diag();
+    if (await interruptibleWait(rand(SLEEP_BREATH_MS[0], SLEEP_BREATH_MS[1]))) break;
+  }
+  stopZzz(); // waking begins here (skip-interrupted or cycles ran out) -- Zzz is gone before the reverse transition starts
+
+  setFrame(ASSETS.sleep[2]); // curled, waking
+  diag();
+  await wait(SLEEP_TRANSITION_MS[1]);
+  setFrame(ASSETS.sleep[1]); // rising back through the lowering pose
+  diag();
+  await wait(SLEEP_TRANSITION_MS[0]);
+  settleToSit();
+}
+
+// ---------- tail wag: a quick flick, straight from sit -- same body as
+// sit_01 throughout (per manifest note only the tail itself moves), so this
+// is a full-frame swap like blink, not a stretch/stand behavior. Sweeps out
+// 1->2->3->4 then back down 4->3->2->1, snappy holds, no interruptible wait
+// since it's short enough not to need a skip mid-flick. ----------
+async function tailWag() {
+  setStateName("tailwag");
+  const order = [1, 2, 3, 2, 1, 0];
+  for (const idx of order) {
+    setFrame(ASSETS.tailwag[idx]);
+    diag();
+    await wait(rand(TAILWAG_FRAME_MS[0], TAILWAG_FRAME_MS[1]));
+  }
+  settleToSit();
+}
+
+// ---------- groom: a bout of paw-licking, straight from sit -- seated sit_01
+// body pose throughout (per manifest note), so this is a full-frame swap like
+// blink/tailwag, not a stretch/stand behavior. Cycles through a lick beat
+// (open -> paw-lower -> paw-raised -> paw-lower) a few times before settling.
+// The lick-cycle hold is interruptible so a skip can end a bout early instead
+// of forcing it to run out. ----------
+async function groomBehavior() {
+  setStateName("groom");
+  const cycles = Math.round(rand(GROOM_LICK_CYCLES[0], GROOM_LICK_CYCLES[1]));
+  outer: for (let i = 0; i < cycles; i++) {
+    for (const idx of [0, 1, 2, 1]) {
+      setFrame(ASSETS.groom[idx]);
+      diag();
+      if (await interruptibleWait(rand(GROOM_FRAME_MS[0], GROOM_FRAME_MS[1]))) break outer;
+    }
+  }
+  settleToSit();
+}
+
 // ---------- behaviour loop: sit, mostly blinking, sometimes looking up,
-// occasionally getting up to walk around ----------
+// occasionally getting up to walk around, occasionally settling in for a nap,
+// flicking her tail, or grooming ----------
 function pickIdleAction() {
   const r = Math.random();
   if (r < GET_UP_CHANCE) return "get-up-walk";
   if (r < GET_UP_CHANCE + LOOK_UP_CHANCE) return "look-up";
+  if (r < GET_UP_CHANCE + LOOK_UP_CHANCE + SLEEP_CHANCE) return "sleep";
+  if (r < GET_UP_CHANCE + LOOK_UP_CHANCE + SLEEP_CHANCE + TAILWAG_CHANCE) return "tailwag";
+  if (r < GET_UP_CHANCE + LOOK_UP_CHANCE + SLEEP_CHANCE + TAILWAG_CHANCE + GROOM_CHANCE) return "groom";
   return "blink";
 }
 
 async function runIdleAction(name) {
   if (name === "get-up-walk") await getUpAndWalk();
   else if (name === "look-up") await lookUp();
+  else if (name === "sleep") await sleepBehavior();
+  else if (name === "tailwag") await tailWag();
+  else if (name === "groom") await groomBehavior();
   else await blink();
 }
 

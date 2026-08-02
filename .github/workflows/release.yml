@@ -1,0 +1,45 @@
+# Builds and publishes Ezra App Mini installers whenever a version tag
+# (v0.2.0, v0.3.1, etc.) is pushed. Publishing target is GitHub Releases on
+# this repo, matching the "publish" block in Ezra App Mini/package.json --
+# electron-updater on installed copies checks that same Releases feed.
+#
+# Mac builds are ad-hoc self-signed (see the "identity": null in
+# package.json's build.mac config), not signed with a paid Apple Developer
+# ID -- users installing the Mac build will need to right-click > Open (or
+# System Settings > Privacy & Security > Open Anyway) the first time, since
+# it isn't notarized. That's a deliberate cost tradeoff, not an oversight.
+
+name: Release
+
+"on":
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+    defaults:
+      run:
+        working-directory: "Ezra App Mini"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm ci
+
+      - name: Build and publish
+        run: npm run release
+        env:
+          # electron-builder's GitHub publisher reads GH_TOKEN specifically --
+          # the default GITHUB_TOKEN Actions provides has to be remapped to it.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

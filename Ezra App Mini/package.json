@@ -3,10 +3,56 @@
   "version": "0.1.0",
   "description": "Ezra the desktop cat -- V1mini: sits on the cushion, blinks, occasionally looks up, occasionally gets up to stretch and walk",
   "main": "main.js",
+  "author": "the-ardent-guy",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "dist:win": "electron-builder --win",
+    "dist:mac": "electron-builder --mac",
+    "release": "electron-builder --publish always"
   },
   "devDependencies": {
-    "electron": "^31.7.7"
+    "electron": "^31.7.7",
+    "electron-builder": "^26.15.3"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9"
+  },
+  "build": {
+    "appId": "com.theardentguy.ezra",
+    "productName": "Ezra",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**",
+      "assets/**",
+      "package.json",
+      "!remote/**"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "mac": {
+      "target": ["dmg", "zip"],
+      "icon": "build/icon.icns",
+      "category": "public.app-category.entertainment",
+      "identity": null,
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "the-ardent-guy",
+        "repo": "ezraapp"
+      }
+    ]
   }
 }

@@ -23,19 +23,22 @@
     z-index: 1; /* draw over the cushion, not behind it */
   }
 
-  /* Static resting spot at her home corner -- placeholder maroon rectangle
-     for now, always visible regardless of what she's doing. Cat's home spot
-     is flush to the edge (HOME_MARGIN 0 in engine.js); cushion is offset an
-     extra 28px (~0.75cm at 96 DPI) further left than her exact spot, by
-     request -- don't resync these two. */
+  /* Static resting spot at her home corner, always visible regardless of what
+     she's doing. Real art (prop_cushion.png, cropped to content, native aspect
+     ratio 1369:238) replaced the placeholder rectangle 2026-08-01. Sized/positioned
+     by measuring sit_01's actual ground-contact x-range (where her paws/tail
+     touch down, not her full silhouette which includes her head jutting out) --
+     that span sits at roughly [84, 134]px within her 220px sprite box, centering
+     around her home position at screen-x = innerWidth-111. At width 170px and
+     right:28px the cushion's own center lands within 2px of that, so this offset
+     is deliberately kept matching the old placeholder's -- don't "helpfully" change
+     it without redoing the measurement. Cat's home spot is flush to the edge
+     (HOME_MARGIN 0 in engine.js); cushion stays offset further left, same as before. */
   #cushion {
     position: fixed;
     right: 28px;
-    bottom: 2px;
-    width: 160px;
-    height: 16px;
-    background: #6b1f2a;
-    border-radius: 8px;
+    bottom: -6px;
+    width: 170px;
     pointer-events: none;
   }
 
@@ -67,15 +70,56 @@
     background: #333;
     transition: left 0.1s ease-out, top 0.1s ease-out;
   }
+
+  /* Zzz overlay while asleep -- shown only once she's been asleep a while
+     (see engine.js sleepBehavior, ZZZ_START_CYCLE), hidden again the instant
+     she starts waking. Anchored near the head/nose of the curled breathing-
+     loop frames (sleep_04/05 bbox lands roughly left=36px/top=125px within
+     the 220px sprite box, vs. sleep_01's much higher sit-matched framing) --
+     tune once visible. */
+  #zzz {
+    position: absolute;
+    left: 18px;
+    top: 90px;
+    width: 60px;
+    height: 60px;
+    pointer-events: none;
+    display: none;
+  }
+  #zzz .z {
+    position: absolute;
+    left: 0;
+    top: 40px;
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: bold;
+    color: #4a5a7a;
+    opacity: 0;
+    animation: zzz-drift 2.4s ease-in infinite;
+  }
+  #zzz .z1 { font-size: 13px; animation-delay: 0s; }
+  #zzz .z2 { font-size: 17px; left: 9px; animation-delay: 0.8s; }
+  #zzz .z3 { font-size: 21px; left: 18px; animation-delay: 1.6s; }
+
+  @keyframes zzz-drift {
+    0%   { opacity: 0; transform: translate(0, 0) scale(0.8); }
+    15%  { opacity: 0.85; }
+    80%  { opacity: 0.55; }
+    100% { opacity: 0; transform: translate(8px, -32px) scale(1.1); }
+  }
 </style>
 </head>
 <body>
-  <div id="cushion"></div>
+  <img id="cushion" src="../assets/ezra/prop_cushion.png" alt="">
   <div id="stage">
     <img id="sprite" src="../assets/ezra/sit_01.png" alt="Ezra">
     <div id="flies">
       <div class="fly" id="fly1"></div>
       <div class="fly" id="fly2"></div>
+    </div>
+    <div id="zzz">
+      <span class="z z1">Z</span>
+      <span class="z z2">Z</span>
+      <span class="z z3">Z</span>
     </div>
   </div>
   <script src="engine.js"></script>

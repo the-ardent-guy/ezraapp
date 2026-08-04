@@ -47,6 +47,20 @@ document.getElementById("nextFrame").addEventListener("click", () => {
   sendPose();
 });
 
+// Handled directly by main.js (window show/hide, app.quit) -- these never
+// reach engine.js at all, unlike every other button on this page.
+document.getElementById("hideEzra").addEventListener("click", () => {
+  window.remote.send({ kind: "hide" });
+  status("She's gone. Use \"Come back\" to bring her out again.");
+});
+document.getElementById("showEzra").addEventListener("click", () => {
+  window.remote.send({ kind: "show" });
+  status("She's back.");
+});
+document.getElementById("quitApp").addEventListener("click", () => {
+  window.remote.send({ kind: "quit" });
+});
+
 document.getElementById("behaviors").addEventListener("click", (e) => {
   const name = e.target?.dataset?.behavior;
   if (!name) return;
@@ -57,6 +71,16 @@ document.getElementById("behaviors").addEventListener("click", (e) => {
 document.getElementById("skip").addEventListener("click", () => {
   window.remote.send({ kind: "skip" });
   status("Skipped / waking now");
+});
+
+// Experimental "whack the cursor" prototype -- sent as its own payload kind
+// (not { kind: "behavior", name: "whack" }) so it never touches the normal
+// behavior dispatch/idle-roll table in engine.js. Only takes effect while
+// she's sitting or walking; otherwise it's a silent no-op (check the main
+// app's console/diag output).
+document.getElementById("whack").addEventListener("click", () => {
+  window.remote.send({ kind: "whack" });
+  status("Triggered: whack (if she's sitting/walking right now)");
 });
 
 document.getElementById("resumeAuto").addEventListener("click", () => {

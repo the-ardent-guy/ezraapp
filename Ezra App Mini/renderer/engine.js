@@ -4,12 +4,13 @@ window.onerror = (msg, url, line, col, error) => {
 console.log("engine.js (V1mini) starting, window.ezra =", typeof window.ezra);
 
 // ============================================================
-// V1mini -- revision in progress. She sits on the cushion: blinking
-// (sit_01 <-> sit_blink), occasionally looking up (sit_02, sometimes
-// at flies), and occasionally getting up entirely -- a stretch, a walk
-// out and back, then settling into sit again. Sleep/wander-elsewhere
-// are still out; this is only the get-up-and-walk addition on top of
-// the sit baseline.
+// V1mini. She sits on the cushion, mostly blinking (sit_01 <-> sit_blink),
+// occasionally looking up (sit_02, sometimes at flies), occasionally
+// grooming or flicking her tail, occasionally napping, and occasionally
+// getting up -- almost always just a short stroll away from the cushion and
+// back, rarely a full walk clear across the screen. The cursor-whack system
+// exists in this file (see the "Cursor-whack system" block below) but is
+// deliberately NOT started in boot() -- it's not part of V1mini yet.
 // ============================================================
 
 const SPRITE_WIDTH = 220;
@@ -25,23 +26,40 @@ const STATE_GROUND_OFFSET = {
   sleep: 168, // all 5 frames recentered in-place to share this exact bottom margin (see manifest.json sleep note) -- ground-contact line holds steady across the whole sequence
   tailwag: 168, // same body as sit_01 throughout -- bottom bbox margin drifts 163-186 across frames 1-4, but that's the tail lifting off the ground, not the body/paws shifting, so unlike sleep this does NOT need per-frame recentering
   groom: 168, // seated sit_01 body pose throughout -- measured margins 170/171/171, close enough to sit's 168 to not need recentering (the small left-edge drift across frames is the raised paw, not the body)
+  whack: 199, // dedicated whack art (own body pose) -- frames 02-05 recentered in-place to share this exact margin, see manifest.json's whack note
 };
 
 const BLINK_HOLD_MS = [90, 160]; // eyes-closed duration range -- quick, not a slow fade
-const BLINK_GAP_MS = [2000, 6000]; // natural time between blinks while just sitting
-const LOOK_UP_CHANCE = 0.15; // rolled at each gap instead of a blink
+const BLINK_GAP_MS = [2000, 6000]; // natural time between blinks -- drives blinkLoop's own cadence now, independent of the other-behaviors roll below
+const ACTION_ROLL_GAP_MS = [2000, 6000]; // how often the other-behaviors loop rerolls whether to start something (look-up/sleep/tailwag/groom/walk/wander-off) -- separate cadence from blinking so the two don't compete for the same slot
+const LOOK_UP_CHANCE = 0.15; // rolled at each action-roll gap
 const LOOK_UP_HOLD_MS = [4000, 8000]; // how long she holds sit_02 before settling back
 const LOOK_UP_FLIES_CHANCE = 0.5; // of a look-up, how often it's because a fly's caught her eye vs. just glancing up
-const GET_UP_CHANCE = 0.1; // rolled at the same gap, alongside look-up -- getting up and walking off a while
+const GET_UP_CHANCE = 0.04; // rolled at the same gap -- getting up and walking ALL THE WAY ACROSS THE SCREEN. Deliberately rarer than SHORT_STROLL_CHANCE below -- crossing the whole screen should read as an occasional event, not routine.
+const SHORT_STROLL_CHANCE = 0.08; // rolled at the same gap -- a brief step away from the cushion and back, more common than the full crossing but still not the default
+const STROLL_DISTANCE_PX = [90, 220]; // how far she wanders from home during a short stroll -- stays near the cushion, well short of a screen crossing
+const WANDER_OFF_CHANCE = 0.03; // rolled at the same gap -- rarer than even the full-screen walk: she leaves the screen entirely for a while
+const WANDER_AWAY_MS = [20000, 120000]; // how long she stays off-screen before coming back -- randomized ("at her own will"), 20s-2min per behavior request; tune freely
 const SLEEP_CHANCE = 0.08; // rolled at the same gap -- settling down for a nap, straight from sit, no stretch/stand involved
 const SLEEP_TRANSITION_MS = [500, 450]; // lowering (frame 2), curling in (frame 3)
 const SLEEP_BREATH_MS = [1900, 2600]; // hold per breathing-loop frame (4 <-> 5) -- slow, deliberate, not a quick flicker
-const SLEEP_BREATH_CYCLES = [4, 9]; // number of full breath pairs before waking
+const SLEEP_BREATH_CYCLES = [145, 260]; // number of full breath pairs before waking -- at ~4.5s/cycle avg this is roughly 11-19.5 minutes per nap (~15 min avg), a real minimum-length request, not a quick doze
 const ZZZ_START_CYCLE = 2; // breathing cycles in before the Zzz overlay appears -- not the instant she lies down, only once she's properly settled
 const TAILWAG_CHANCE = 0.12; // rolled at the same gap -- a quick tail flick, straight from sit, no stretch/stand involved
 const TAILWAG_FRAME_MS = [110, 170]; // hold per frame during the sweep -- snappy, not a slow drift
+const TAILWAG_REPEATS = [3, 4]; // how many out-and-back sweeps per flick -- rounds to 3 or 4, not a single sweep
 const GROOM_CHANCE = 0.1; // rolled at the same gap -- a bout of paw-licking, straight from sit, no stretch/stand involved
 const GROOM_FRAME_MS = [220, 380]; // hold per frame within a lick cycle -- more deliberate than tailwag's flick, faster than sleep's breathing
+
+// Cursor-whack system. Deliberately NOT part of the idle roll (see
+// whackLoop/whackSequence further down): no chance constant here feeds
+// pickIdleAction, on purpose.
+const WHACK_APPROACH_DIST = 150; // px, 2D distance from cursor to her live sprite bbox -- lingering within this starts the approach, and doubles as the "far enough to disengage" threshold once she's striking
+const WHACK_APPROACH_DWELL_MS = 2000; // how long the cursor has to stay within that radius before she reacts and walks over
+const WHACK_STRIKE_DIST = 60; // px -- once she's within this distance (either already, or by walking over), she stops and starts whacking
+const WHACK_WATCH_MS = 2000; // hold on whack_02 (the watching pose) once she's stopped, before the strike beats begin
+const WHACK_BEAT_MS = [90, 140]; // snappy per-beat hold during the 3-4-5 strike loop -- quicker than tailwag's flick, this is a hit not a sweep
+const WHACK_COOLDOWN_MS = 2500; // minimum gap after disengaging before the approach can arm again
 const GROOM_LICK_CYCLES = [2, 5]; // number of full lick cycles before settling back
 
 const GLANCE_PAUSE_MS = 900; // how long she holds the look-at-screen pose before stretching
@@ -83,9 +101,11 @@ async function loadManifest() {
     sleep: framePaths("sleep", manifest.states.sleep.frames), // 01 = sit-matched, 02 = lowering, 03 = curled settle, 04/05 = breathing loop
     tailwag: framePaths("tailwag", manifest.states.tailwag.frames), // 01 = curled in (matches sit_01), 02-04 = tail sweeping out
     groom: framePaths("groom", manifest.states.groom.frames), // 01 = eyes open mid-lick, 02 = eyes closed paw lower, 03 = eyes closed paw raised
+    pounce: framePaths("pounce", manifest.states.pounce.frames), // 01 = coiled ready crouch, 02 = airborne leap, 03 = landed crouch -- imported but currently unused by any behavior
+    whack: framePaths("whack", manifest.states.whack.frames), // 01 = unused (play-bow stretch), 02 = watching pose, 03-05 = paw-swipe cycle
   };
   console.log(
-    `manifest loaded: sit:${ASSETS.sit.length}, sitBlink:single, idle:${ASSETS.idle.length}, walk:${ASSETS.walk.length}, stretch:${ASSETS.stretch.length}, look:${ASSETS.look.length}, sleep:${ASSETS.sleep.length}, tailwag:${ASSETS.tailwag.length}, groom:${ASSETS.groom.length}`
+    `manifest loaded: sit:${ASSETS.sit.length}, sitBlink:single, idle:${ASSETS.idle.length}, walk:${ASSETS.walk.length}, stretch:${ASSETS.stretch.length}, look:${ASSETS.look.length}, sleep:${ASSETS.sleep.length}, tailwag:${ASSETS.tailwag.length}, groom:${ASSETS.groom.length}, pounce:${ASSETS.pounce.length}, whack:${ASSETS.whack.length}`
   );
 }
 
@@ -138,8 +158,8 @@ function applyTransform() {
   stageEl.style.transform = `translateY(${state.bobY + state.groundOffset}px) scaleX(${flip})`;
 }
 
-function setX(x) {
-  state.x = Math.max(0, Math.min(maxX(), x));
+function setX(x, allowOffscreen = false) {
+  state.x = allowOffscreen ? x : Math.max(0, Math.min(maxX(), x));
   stageEl.style.left = `${state.x}px`;
 }
 
@@ -261,8 +281,24 @@ async function lookUp() {
 // settles through idle cat2 -> cat1 as her "coming to a stop" beat.
 // Includes a once-per-leg camera glance at GLANCE_FRAME_INDEX (walk_07 ->
 // look_02).
-async function walkTo(targetX, fps = SAUNTER_FPS) {
-  targetX = Math.max(0, Math.min(maxX(), targetX));
+//
+// `shouldStop`, if given, is checked every step and cuts the walk short the
+// instant it returns true -- used by the whack system to stop her partway
+// through a walk-to-cursor the moment she's close enough, rather than
+// forcing her all the way to a fixed target first. Existing callers don't
+// pass it, so `stoppedEarly` is always false for them and this changes
+// nothing about their behavior. When a walk *is* cut short, the normal
+// idle-settle tail (cat2 -> pause -> cat1) is skipped -- she isn't "arriving
+// home", she's stopping because something else is about to take over, and
+// that caller is responsible for its own settle.
+//
+// `allowOffscreen`, if true, skips the normal clamp-to-[0, maxX()] on both
+// the target and every intermediate step -- used only by wanderOff() so she
+// can actually walk past the screen edge and back rather than snapping to
+// the boundary. Every other caller leaves this false and keeps the old
+// stay-on-screen behavior.
+async function walkTo(targetX, fps = SAUNTER_FPS, shouldStop = null, allowOffscreen = false) {
+  if (!allowOffscreen) targetX = Math.max(0, Math.min(maxX(), targetX));
   if (Math.abs(targetX - state.x) < 1) return; // already there -- no walking in place
   setStateName("walk");
   const frameCount = ASSETS.walk.length;
@@ -273,6 +309,7 @@ async function walkTo(targetX, fps = SAUNTER_FPS) {
   const clock = new FrameClock(fps);
   let lastTime = performance.now();
   let glanced = false; // only one camera-glance pause per walk leg
+  let stoppedEarly = false;
 
   await new Promise((resolve) => {
     function step() {
@@ -282,13 +319,18 @@ async function walkTo(targetX, fps = SAUNTER_FPS) {
       const steps = clock.tick(dt, frameCount);
 
       for (let s = 0; s < steps; s++) {
+        if (shouldStop && shouldStop()) {
+          stoppedEarly = true;
+          resolve();
+          return;
+        }
         const dx = targetX - state.x;
         if (Math.abs(dx) < 0.01) {
           resolve();
           return;
         }
-        if (Math.abs(dx) <= pxPerFrame) setX(targetX);
-        else setX(state.x + Math.sign(dx) * pxPerFrame);
+        if (Math.abs(dx) <= pxPerFrame) setX(targetX, allowOffscreen);
+        else setX(state.x + Math.sign(dx) * pxPerFrame, allowOffscreen);
 
         const phase = (clock.frame / frameCount) * Math.PI * 2;
         state.bobY = -BOB_AMPLITUDE_PX * Math.abs(Math.sin(phase));
@@ -318,6 +360,8 @@ async function walkTo(targetX, fps = SAUNTER_FPS) {
   });
 
   state.bobY = 0;
+  if (stoppedEarly) return;
+
   setStateName("idle"); // she's stopped -- switch off "walk"'s baseline before showing idle frames
   setFrame(ASSETS.idle[1]); // cat2
   diag();
@@ -343,7 +387,9 @@ async function stretchBehavior(settle = "sit") {
   settleToSit();
 }
 
-// ---------- get up and walk: stretch, walk out, walk home, sit back down.
+// ---------- get up and walk: stretch, walk ALL THE WAY ACROSS THE SCREEN to
+// a random point, walk home, sit back down. The rare, big-traversal walk --
+// see SHORT_STROLL_CHANCE above for the more common, cushion-local version.
 // No sit-to-stand transition frame exists yet, so the cut from sit_01
 // straight to the stretch pose is deliberate, not a bug -- same known gap
 // as everywhere else she needs to visibly stand up from sitting. ----------
@@ -351,6 +397,38 @@ async function getUpAndWalk() {
   await stretchBehavior("walk");
   await walkTo(rand(0, maxX()), SAUNTER_FPS);
   await walkTo(homeX(), SAUNTER_FPS);
+  settleToSit();
+}
+
+// ---------- short stroll: stretch, step a short distance away from the
+// cushion, walk straight back, sit back down. Same stretch/walk/settle shape
+// as getUpAndWalk, just a much smaller round trip -- she never leaves the
+// cushion's neighborhood. This is the common walking behavior; getUpAndWalk
+// (a full screen crossing) is the rare one. ----------
+async function shortStroll() {
+  await stretchBehavior("walk");
+  const dist = rand(STROLL_DISTANCE_PX[0], STROLL_DISTANCE_PX[1]);
+  await walkTo(homeX() - dist, SAUNTER_FPS);
+  await walkTo(homeX(), SAUNTER_FPS);
+  settleToSit();
+}
+
+// ---------- wander off: stretch, walk clean off the left edge of the screen
+// (allowOffscreen -- see walkTo), stay gone for a randomized stretch of time,
+// then walk back in and settle. Rarer than even the full-screen crossing --
+// this is the "where'd she go" behavior. The away-wait is interruptible so a
+// Remote "Skip" can call her back early instead of forcing the full random
+// wait. If she's called back early or the wait just runs out, setX() snaps
+// her exactly to the off-screen jump-off point before walking back in, so
+// the walk-back always starts from the same place regardless of how the
+// wait ended. ----------
+async function wanderOff() {
+  await stretchBehavior("walk");
+  const offX = -SPRITE_WIDTH - 40; // fully clear of the left edge, well past any anti-aliased sliver
+  await walkTo(offX, SAUNTER_FPS, null, true);
+  setX(offX, true); // guard against any float drift leaving her a hair on-screen
+  await interruptibleWait(rand(WANDER_AWAY_MS[0], WANDER_AWAY_MS[1]));
+  await walkTo(homeX(), SAUNTER_FPS, null, true);
   settleToSit();
 }
 
@@ -389,18 +467,24 @@ async function sleepBehavior() {
   settleToSit();
 }
 
-// ---------- tail wag: a quick flick, straight from sit -- same body as
-// sit_01 throughout (per manifest note only the tail itself moves), so this
-// is a full-frame swap like blink, not a stretch/stand behavior. Sweeps out
-// 1->2->3->4 then back down 4->3->2->1, snappy holds, no interruptible wait
-// since it's short enough not to need a skip mid-flick. ----------
+// ---------- tail wag: several quick flicks, straight from sit -- same body
+// as sit_01 throughout (per manifest note only the tail itself moves), so
+// this is a full-frame swap like blink, not a stretch/stand behavior. Each
+// pass sweeps out 1->2->3 then back down 2->1, repeated TAILWAG_REPEATS
+// times (only settling fully curled on the very last pass) rather than
+// curling all the way in between -- a real flick reads as several quick
+// swings in a row, not curl-uncurl-curl-uncurl. No interruptible wait since
+// it's short enough not to need a skip mid-flick. ----------
 async function tailWag() {
   setStateName("tailwag");
-  const order = [1, 2, 3, 2, 1, 0];
-  for (const idx of order) {
-    setFrame(ASSETS.tailwag[idx]);
-    diag();
-    await wait(rand(TAILWAG_FRAME_MS[0], TAILWAG_FRAME_MS[1]));
+  const repeats = Math.round(rand(TAILWAG_REPEATS[0], TAILWAG_REPEATS[1]));
+  for (let r = 0; r < repeats; r++) {
+    const sweep = r === repeats - 1 ? [1, 2, 3, 2, 1, 0] : [1, 2, 3, 2, 1]; // only the last pass settles to curled (0)
+    for (const idx of sweep) {
+      setFrame(ASSETS.tailwag[idx]);
+      diag();
+      await wait(rand(TAILWAG_FRAME_MS[0], TAILWAG_FRAME_MS[1]));
+    }
   }
   settleToSit();
 }
@@ -424,26 +508,271 @@ async function groomBehavior() {
   settleToSit();
 }
 
-// ---------- behaviour loop: sit, mostly blinking, sometimes looking up,
-// occasionally getting up to walk around, occasionally settling in for a nap,
-// flicking her tail, or grooming ----------
+// ---------- other-behaviors loop: sometimes looking up, occasionally getting
+// up (short stroll near the cushion, rarer full walk across the screen,
+// rarer still wandering off-screen entirely), settling in for a nap,
+// flicking her tail, or grooming. Blinking is NOT rolled here anymore -- see
+// blinkLoop below, which runs continuously and independently whenever she's
+// just sitting, instead of competing with these for the same slot. A null
+// return means nothing special won this roll -- blinkLoop covers that time. ----------
 function pickIdleAction() {
   const r = Math.random();
-  if (r < GET_UP_CHANCE) return "get-up-walk";
-  if (r < GET_UP_CHANCE + LOOK_UP_CHANCE) return "look-up";
-  if (r < GET_UP_CHANCE + LOOK_UP_CHANCE + SLEEP_CHANCE) return "sleep";
-  if (r < GET_UP_CHANCE + LOOK_UP_CHANCE + SLEEP_CHANCE + TAILWAG_CHANCE) return "tailwag";
-  if (r < GET_UP_CHANCE + LOOK_UP_CHANCE + SLEEP_CHANCE + TAILWAG_CHANCE + GROOM_CHANCE) return "groom";
-  return "blink";
+  if (r < WANDER_OFF_CHANCE) return "wander-off";
+  if (r < WANDER_OFF_CHANCE + GET_UP_CHANCE) return "get-up-walk";
+  if (r < WANDER_OFF_CHANCE + GET_UP_CHANCE + SHORT_STROLL_CHANCE) return "short-stroll";
+  if (r < WANDER_OFF_CHANCE + GET_UP_CHANCE + SHORT_STROLL_CHANCE + LOOK_UP_CHANCE) return "look-up";
+  if (r < WANDER_OFF_CHANCE + GET_UP_CHANCE + SHORT_STROLL_CHANCE + LOOK_UP_CHANCE + SLEEP_CHANCE) return "sleep";
+  if (
+    r <
+    WANDER_OFF_CHANCE + GET_UP_CHANCE + SHORT_STROLL_CHANCE + LOOK_UP_CHANCE + SLEEP_CHANCE + TAILWAG_CHANCE
+  )
+    return "tailwag";
+  if (
+    r <
+    WANDER_OFF_CHANCE +
+      GET_UP_CHANCE +
+      SHORT_STROLL_CHANCE +
+      LOOK_UP_CHANCE +
+      SLEEP_CHANCE +
+      TAILWAG_CHANCE +
+      GROOM_CHANCE
+  )
+    return "groom";
+  return null;
 }
 
 async function runIdleAction(name) {
-  if (name === "get-up-walk") await getUpAndWalk();
+  if (name === "wander-off") await wanderOff();
+  else if (name === "get-up-walk") await getUpAndWalk();
+  else if (name === "short-stroll") await shortStroll();
   else if (name === "look-up") await lookUp();
   else if (name === "sleep") await sleepBehavior();
   else if (name === "tailwag") await tailWag();
   else if (name === "groom") await groomBehavior();
-  else await blink();
+  else if (name === "blink") await blink(); // still reachable via manual override / Remote button
+}
+
+// ============================================================
+// Cursor-whack system.
+//
+// Standalone, intentionally kept OUT of pickIdleAction()/runIdleAction()'s
+// dispatch table above -- never part of the random idle roll. Driven purely
+// by live cursor position, via its own independent loop (whackLoop, started
+// in boot() alongside behaviourLoop) rather than being dispatched through
+// behaviourLoop the way the old single-shot prototype was. While a sequence
+// is running, `whackActive` tells behaviourLoop to stand down (checked at
+// the top of its while-loop, same pattern as previewMode) so the two never
+// fight over state/frames.
+//
+// Uses the real dedicated "whack" art (5 frames, imported 2026-08-02 -- see
+// manifest.json's whack note), not a reuse of pounce/other poses like the
+// first prototype. whack_01 is never used here. whack_02 is the watching/
+// stalking pose; whack_03/04/05 are a paw-swipe cycle that reads as
+// continuous batting when looped 03->04->05->03...
+//
+// Two stages:
+//  1. APPROACH -- the cursor has to stay within WHACK_APPROACH_DIST of her
+//     (2D distance to her live sprite bbox, tracked continuously by
+//     onCursorMove/approachDwellMs below) for WHACK_APPROACH_DWELL_MS
+//     straight before she reacts. She then walks toward the cursor's
+//     x-position using her normal walking art/pace (no separate slow-walk
+//     system -- her existing stride speed already works out to roughly the
+//     requested ~40px/second), via walkTo()'s new `shouldStop` hook, which
+//     cuts the walk short the moment she's within WHACK_STRIKE_DIST rather
+//     than forcing her all the way to a fixed target. If she's already
+//     within strike range when the dwell completes, this stage is skipped
+//     entirely. Known simplification: the walk targets the cursor's
+//     position at the moment the approach begins, not a continuously
+//     re-aimed position -- if the cursor moves a lot mid-approach she
+//     doesn't chase it, she may just end up not reaching strike range and
+//     settle normally at the end of the walk.
+//  2. STRIKE -- once close enough, she holds whack_02 for WHACK_WATCH_MS,
+//     then loops the 03-04-05 swipe cycle for as long as the cursor stays
+//     within WHACK_APPROACH_DIST (reused here as the disengage threshold --
+//     comfortably looser than the WHACK_STRIKE_DIST that triggered this in
+//     the first place, so it doesn't flicker in and out right at the
+//     boundary). Checked once per beat, not continuously, so a strike beat
+//     always finishes cleanly instead of freezing mid-swing.
+//
+// Only starts a fresh approach from a plain "sit" (not "walk") -- if she's
+// already mid-walk from the normal idle loop when the dwell completes, this
+// deliberately waits rather than starting a second, concurrent walkTo()
+// call, which would race the in-flight one over state.x/frame. The moment
+// she settles back to sit, the next poll picks it up immediately since the
+// dwell condition is already satisfied.
+// ============================================================
+
+let whackActive = false;
+let whackCooldownUntil = 0; // performance.now()-scale timestamp
+let lastCursorPoint = { x: -9999, y: -9999 }; // latest raw point from window.ezra.onCursor
+let approachDwellStart = null; // null while the cursor is outside WHACK_APPROACH_DIST, else the timestamp it entered
+
+// PREREQUISITE FIX, discovered while building the first whack prototype:
+// main.js's "cursor" broadcast is gated behind `lastSpriteBounds`, which is
+// only ever populated by a renderer calling window.ezra.reportSpriteBounds()
+// -- and this file never did, so the broadcast was silently dead. This
+// mirrors the sibling Ezra App's own renderer.js reportBounds()/
+// setInterval(..., 100) pattern exactly, and is additive -- it doesn't touch
+// any existing behavior function. As a side effect this also revives
+// main.js's click-through hit-testing (toggling ignoreMouseEvents over the
+// sprite), which was equally dead for the same reason.
+function reportSpriteBounds() {
+  const rect = spriteEl.getBoundingClientRect();
+  window.ezra.reportSpriteBounds({
+    x: Math.round(rect.left + window.screenX),
+    y: Math.round(rect.top + window.screenY),
+    width: Math.round(rect.width),
+    height: Math.round(rect.height),
+  });
+}
+
+// Distance (px) from a screen point to her sprite's live screen bbox -- 0
+// while the point is inside it, not just center-to-center.
+function distanceToSprite(cursorX, cursorY) {
+  const rect = spriteEl.getBoundingClientRect();
+  const left = rect.left + window.screenX;
+  const top = rect.top + window.screenY;
+  const dx = Math.max(left - cursorX, 0, cursorX - (left + rect.width));
+  const dy = Math.max(top - cursorY, 0, cursorY - (top + rect.height));
+  return Math.hypot(dx, dy);
+}
+
+// Fed by window.ezra.onCursor (~30Hz from main.js) on every tick regardless
+// of state -- just tracks the raw point and maintains the approach-dwell
+// clock (an anchor timestamp that resets to null the instant the cursor
+// leaves WHACK_APPROACH_DIST, so approachDwellMs() reflects "how long has it
+// been continuously within range", not "time since it first arrived").
+function onCursorMove(x, y) {
+  lastCursorPoint = { x, y };
+  const dist = distanceToSprite(x, y);
+  if (dist > WHACK_APPROACH_DIST) {
+    approachDwellStart = null;
+  } else if (approachDwellStart === null) {
+    approachDwellStart = performance.now();
+  }
+}
+
+function approachDwellMs() {
+  return approachDwellStart === null ? 0 : performance.now() - approachDwellStart;
+}
+
+// Stage 2: hold the watch pose, then loop the swipe cycle for as long as
+// `shouldContinue()` says to. Always ends by settling back to sit.
+//
+// shouldContinue is a parameter (not hardcoded to the real distance check)
+// specifically so manualWhackTest() can preview the beats without depending
+// on where the real OS cursor happens to be -- an earlier version hardcoded
+// the distance check here, which meant pressing the manual test button while
+// your mouse was anywhere near the Remote window (i.e. always) played the
+// watch pose and then silently settled with zero swipe beats, defeating the
+// button's entire purpose. Caught by actually running it, not just reading
+// the code.
+async function runWhackStrike(shouldContinue) {
+  setStateName("whack");
+  setFrame(ASSETS.whack[1]); // whack_02: watching
+  diag();
+  await wait(WHACK_WATCH_MS);
+
+  while (shouldContinue()) {
+    for (const idx of [2, 3, 4]) {
+      // whack_03 -> 04 -> 05: the "3-4-5" swipe cycle
+      setFrame(ASSETS.whack[idx]);
+      diag();
+      await wait(rand(WHACK_BEAT_MS[0], WHACK_BEAT_MS[1]));
+    }
+  }
+  settleToSit();
+}
+
+// Full sequence: approach (if needed) then strike. Sets whackActive for the
+// duration so behaviourLoop stands down, and starts a cooldown afterward so
+// a cursor sitting right at the boundary can't immediately re-trigger.
+async function whackSequence() {
+  whackActive = true;
+  requestSkip(); // interrupt behaviourLoop's current interruptible gap so it notices whackActive promptly
+
+  const alreadyClose = distanceToSprite(lastCursorPoint.x, lastCursorPoint.y) <= WHACK_STRIKE_DIST;
+  if (!alreadyClose) {
+    const cursorRelativeX = lastCursorPoint.x - window.screenX;
+    const targetX = cursorRelativeX - SPRITE_WIDTH / 2; // aim to end up roughly centered under the cursor
+    await walkTo(targetX, SAUNTER_FPS, () => distanceToSprite(lastCursorPoint.x, lastCursorPoint.y) <= WHACK_STRIKE_DIST);
+  }
+
+  if (distanceToSprite(lastCursorPoint.x, lastCursorPoint.y) <= WHACK_STRIKE_DIST) {
+    await runWhackStrike(() => distanceToSprite(lastCursorPoint.x, lastCursorPoint.y) <= WHACK_APPROACH_DIST); // ends with settleToSit()
+  } else {
+    // Walked all the way to the target without ever getting close enough --
+    // e.g. the cursor sits well above her ground line, vertical distance
+    // alone keeps her out of strike range. Don't get stuck; just settle.
+    settleToSit();
+  }
+
+  whackCooldownUntil = performance.now() + WHACK_COOLDOWN_MS;
+  whackActive = false;
+}
+
+// Independent poll loop -- NOT started in boot() for V1mini (see the WHACK_V1
+// note in boot() below). Cheap enough at a plain 150ms interval -- this only
+// decides *when* to hand off to whackSequence(), it doesn't drive any
+// animation itself.
+async function whackLoop() {
+  while (true) {
+    await wait(150);
+    if (whackActive || previewMode || manualOverrideName) continue;
+    if (state.name !== "sit") continue;
+    if (performance.now() < whackCooldownUntil) continue;
+    if (approachDwellMs() < WHACK_APPROACH_DWELL_MS) continue;
+    await whackSequence();
+  }
+}
+
+// Manual Remote-panel test trigger: skips the approach/dwell entirely and
+// runs the strike sequence in place. Your real mouse is almost certainly
+// hovering the Remote window when you press this, nowhere near her actual
+// on-screen sprite -- gating this on live cursor position would mean it
+// could basically never fire, defeating its point as a preview/feel-testing
+// tool. Still respects whackActive/state guards so it can't collide with a
+// real in-progress sequence.
+async function manualWhackTest() {
+  if (whackActive) return;
+  if (state.name !== "sit" && state.name !== "walk") return;
+  whackActive = true;
+  requestSkip();
+  let loops = 0;
+  await runWhackStrike(() => loops++ < 3); // fixed 3 rounds for a preview, independent of real cursor position
+  whackActive = false;
+}
+
+// `sitBusy` is a lock shared between blinkLoop and behaviourLoop -- both loops
+// can independently decide "do something" while she's sitting, and without
+// this they could land in the same instant and stomp on each other's frames
+// (e.g. blink() overwriting a frame mid-tailwag). Whichever loop starts an
+// action first claims the lock via runGuarded(); the other checks it before
+// starting anything of its own and just waits for the next tick if it's held.
+let sitBusy = false;
+
+async function runGuarded(fn) {
+  sitBusy = true;
+  try {
+    await fn();
+  } finally {
+    sitBusy = false;
+  }
+}
+
+// ---------- blink loop: independent, continuous ambient blinking. Runs on
+// its own natural cadence (BLINK_GAP_MS) the entire time she's in plain "sit"
+// -- not just on the rounds nothing else won -- so she reads as alive and
+// paying attention rather than freezing between behaviors. Stands down
+// whenever she's mid another behavior (state.name isn't "sit" then) or the
+// other-behaviors loop has already claimed sitBusy. ----------
+async function blinkLoop() {
+  while (true) {
+    await interruptibleWait(rand(BLINK_GAP_MS[0], BLINK_GAP_MS[1]));
+    if (previewMode || manualOverrideName || whackActive || sitBusy) continue;
+    if (state.name !== "sit") continue;
+    await runGuarded(blink);
+  }
 }
 
 async function behaviourLoop() {
@@ -452,15 +781,27 @@ async function behaviourLoop() {
       await wait(150); // parked -- remote is holding a single pose frame steady
       continue;
     }
-    if (manualOverrideName) {
-      const forced = manualOverrideName;
-      manualOverrideName = null;
-      await runIdleAction(forced);
+    // whackLoop has taken control (see whackSequence/manualWhackTest) --
+    // stand down entirely until it's done, same pattern as previewMode.
+    if (whackActive) {
+      await wait(150);
       continue;
     }
-    await interruptibleWait(rand(BLINK_GAP_MS[0], BLINK_GAP_MS[1]));
-    if (previewMode || manualOverrideName) continue; // a remote command landed mid-gap -- let the branches above handle it next pass
-    await runIdleAction(pickIdleAction());
+    if (manualOverrideName) {
+      if (sitBusy) {
+        await wait(50); // let an in-flight blink finish first rather than colliding with it
+        continue;
+      }
+      const forced = manualOverrideName;
+      manualOverrideName = null;
+      await runGuarded(() => runIdleAction(forced));
+      continue;
+    }
+    await interruptibleWait(rand(ACTION_ROLL_GAP_MS[0], ACTION_ROLL_GAP_MS[1]));
+    if (previewMode || manualOverrideName || whackActive || sitBusy) continue; // a remote command, the whack system, or a blink landed mid-gap -- let the relevant branch handle it next pass
+    if (state.name !== "sit") continue; // only start a fresh action from neutral sit
+    const action = pickIdleAction();
+    if (action) await runGuarded(() => runIdleAction(action));
   }
 }
 
@@ -492,6 +833,13 @@ function handleRemoteCommand(payload) {
     case "resume":
       previewMode = false;
       break;
+    case "whack":
+      // Manual test trigger -- routed through manualWhackTest(), not through
+      // the "behavior" case above, so it can never touch manualOverrideName /
+      // runIdleAction()'s dispatch table. Fire-and-forget: handleRemoteCommand
+      // itself is synchronous.
+      manualWhackTest();
+      break;
   }
 }
 
@@ -504,8 +852,27 @@ async function boot() {
   settleToSit();
 
   window.ezra.onTrigger(handleRemoteCommand);
+  // Whack system's real cursor-proximity tracking -- see onCursorMove().
+  // main.js broadcasts live cursor position on this channel at ~30Hz, but
+  // only once it has sprite bounds to hit-test against -- see
+  // reportSpriteBounds()'s comment for why that call is here now. Cursor
+  // tracking itself stays on (cheap, and reportSpriteBounds/click-through
+  // hit-testing in main.js depends on it) -- only the automatic whackLoop
+  // poll below is disabled for V1mini.
+  window.ezra.onCursor(({ x, y }) => onCursorMove(x, y));
+  setInterval(reportSpriteBounds, 100);
 
   behaviourLoop();
+  blinkLoop();
+  // WHACK_V1: whackLoop() intentionally not started -- the cursor-whack
+  // behavior isn't part of V1mini yet (still being built/tuned). The rest of
+  // the whack system (runWhackStrike, whackSequence, manualWhackTest, the
+  // Remote panel's "Experimental" test button) stays wired up so it's easy
+  // to pick back up later; only the automatic "she notices your cursor and
+  // walks over" trigger is switched off. manualWhackTest() (fired from the
+  // Remote panel) still works for dev preview since it doesn't depend on
+  // this loop.
+  // whackLoop();
 }
 
 boot();

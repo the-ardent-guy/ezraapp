@@ -80,11 +80,24 @@
     </style>
   </head>
   <body>
+    <h2>App</h2>
+    <div class="row">
+      <button id="hideEzra">Go away</button>
+      <button id="showEzra">Come back</button>
+      <button id="quitApp" class="danger">Exit Ezra</button>
+    </div>
+    <div class="hint">
+      Go away / come back just show or hide her overlay window (same as the tray's "Show Ezra" checkbox). Exit Ezra
+      quits the whole app, including this Remote window.
+    </div>
+
     <h2>Behaviors</h2>
     <div class="row" id="behaviors">
       <button data-behavior="blink">Blink</button>
       <button data-behavior="look-up">Look up</button>
-      <button data-behavior="get-up-walk">Get up &amp; walk</button>
+      <button data-behavior="short-stroll">Short stroll</button>
+      <button data-behavior="get-up-walk">Get up &amp; walk (far)</button>
+      <button data-behavior="wander-off">Wander off-screen</button>
       <button data-behavior="sleep">Sleep</button>
       <button data-behavior="tailwag">Tail wag</button>
       <button data-behavior="groom">Groom</button>
@@ -92,7 +105,17 @@
     <div class="row" style="margin-top: 8px">
       <button id="skip" class="danger">Skip</button>
     </div>
-    <div class="hint">Interrupts whatever she's doing and, for the three buttons above, queues that behavior next.</div>
+    <div class="hint">Interrupts whatever she's doing and queues the clicked behavior next. "Wander off-screen" uses the same randomized away-duration as the real thing (see engine.js WANDER_AWAY_MS) -- use Skip to call her back early instead of waiting it out.</div>
+
+    <h2>Experimental (not in V1)</h2>
+    <div class="row">
+      <button id="whack">Whack (test in place)</button>
+    </div>
+    <div class="hint">
+      Skips straight to the strike sequence (watch, then the swipe loop) wherever she is right now, for art/feel
+      preview only. Not part of V1mini and not on the automatic idle loop -- the real cursor-triggered version
+      (resting your cursor near her for 2+ seconds) is intentionally switched off for this build.
+    </div>
 
     <h2>Pose preview</h2>
     <div class="row">

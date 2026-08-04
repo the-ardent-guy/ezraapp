@@ -12,14 +12,28 @@ let lastSpriteBounds = null; // {x, y, width, height} in screen coordinates
 let lastIgnoring = true;
 let wasShownBeforeHide = true; // preserves show/hide state across a display-change reposition
 
-// Work area (screen minus taskbar), not the full display bounds -- with
-// .bounds the window spans behind the taskbar and her ground line sits above
-// it with a gap; .workArea stops exactly at the taskbar's top edge, so a
-// small/zero ground offset puts her right on top of it. Re-read and reapplied
-// on every display change, not just at launch, so unplugging a monitor or
-// changing resolution/scaling doesn't strand her off the visible screen.
+// Windows: work area (screen minus taskbar), not the full display bounds --
+// with .bounds the window spans behind the taskbar and her ground line sits
+// above it with a gap; .workArea stops exactly at the taskbar's top edge, so
+// a small/zero ground offset puts her right on top of it.
+//
+// macOS: deliberately the opposite -- .workArea there excludes the Dock too
+// (same mechanism as the taskbar), which would float her above the Dock
+// instead of sitting at the true bottom of the screen. There's no taskbar
+// equivalent to dock the ground line against on Mac, so we use the full
+// .bounds instead and let her sit at the literal bottom edge regardless of
+// whether the Dock is visible. Known/accepted tradeoff: the window is
+// alwaysOnTop at "screen-saver" level (see createWindow), which is above the
+// Dock's own level, so if her window region overlaps a visible, non-auto-hidden
+// Dock, she'll draw on top of it rather than tucking behind -- left as-is for
+// now, not treated as a bug.
+//
+// Re-read and reapplied on every display change, not just at launch, so
+// unplugging a monitor or changing resolution/scaling doesn't strand her off
+// the visible screen.
 function currentWorkArea() {
-  return screen.getPrimaryDisplay().workArea;
+  const display = screen.getPrimaryDisplay();
+  return process.platform === "darwin" ? display.bounds : display.workArea;
 }
 
 function repositionWindow() {
@@ -67,8 +81,18 @@ function createWindow() {
   // Electron's ignore-mouse-events is all-or-nothing per window, so we poll the
   // cursor position and toggle it based on whether the cursor sits inside the
   // sprite's last-reported bounding box.
-  setInterval(() => {
-    if (!lastSpriteBounds) return;
+  //
+  // BUG FIXED HERE: this interval was never cleared when the window closed
+  // (via the "Exit Ezra" Remote button, or any other close path), so once
+  // `win` was destroyed it kept firing every 33ms and throwing "Object has
+  // been destroyed" on win.webContents.send() -- and since nothing stopped
+  // the interval, it threw again 33ms later, and again, producing an
+  // uncaught-exception dialog that reappeared the instant you dismissed it.
+  // isDestroyed() guard is the actual fix; clearInterval on "closed" is
+  // there too so the timer doesn't keep spinning in the background forever
+  // after the window's gone.
+  const clickThroughInterval = setInterval(() => {
+    if (!win || win.isDestroyed() || !lastSpriteBounds) return;
     const p = screen.getCursorScreenPoint();
     win.webContents.send("cursor", p);
 
@@ -84,6 +108,17 @@ function createWindow() {
       win.setIgnoreMouseEvents(shouldIgnore, { forward: true });
     }
   }, 33); // ~30Hz
+  // `win` is a shared module-level reference read by every other function in
+  // this file (repositionWindow, setShown, the remote-command relay) via a
+  // plain `if (win)`/`if (!win) return` guard -- none of those actually
+  // protected anything, because the variable was never set back to null when
+  // the window closed, so it stayed a truthy (but destroyed) reference
+  // forever. Nulling it here is what makes every one of those existing
+  // guards throughout the file actually correct, not just this interval.
+  win.on("closed", () => {
+    clearInterval(clickThroughInterval);
+    win = null;
+  });
 
   // Monitor unplugged/replugged, resolution changed, DPI/scaling changed --
   // recompute her corner against whatever the screen looks like now.
@@ -157,7 +192,15 @@ ipcMain.on("sprite-bounds", (_event, bounds) => {
 // "trigger" channel. Harmless to leave registered in packaged builds even
 // though createRemoteWindow() never runs there -- nothing will ever send on
 // this channel without the remote window existing to send it.
+//
+// "hide"/"show"/"quit" are handled here instead, not relayed -- they're
+// main-process window/app actions (show/hide the transparent overlay, quit
+// the whole app), not renderer behaviors, so the renderer has no authority
+// to carry them out itself.
 ipcMain.on("remote-command", (_event, payload) => {
+  if (payload && payload.kind === "hide") return setShown(false);
+  if (payload && payload.kind === "show") return setShown(true);
+  if (payload && payload.kind === "quit") return app.quit();
   if (win) win.webContents.send("trigger", payload);
 });
 

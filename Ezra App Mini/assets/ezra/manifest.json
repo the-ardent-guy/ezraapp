@@ -78,6 +78,13 @@
       "width": 1000,
       "height": 1000,
       "note": "same body as sit_01 throughout, only the tail moves: 01 = curled in (matches sit_01 exactly), 02-04 = tail extended, sweeping through different angles. Only valid overlaid on the sit_01 body pose."
+    },
+    "whack": {
+      "frames": 5,
+      "faces": "left",
+      "width": 1000,
+      "height": 1000,
+      "note": "Added 2026-08-02, dedicated cursor-whack art (own body pose, distinct from sit/pounce). 01 = standing arched play-bow stretch -- NOT used by the whack behavior, kept in the file for completeness/possible future use only. 02 = low coiled stalking crouch, intent stare, front paw tucked -- the held 'watching the cursor' pose. 03/04/05 = the same low crouch body with the front paw at three stages of a swipe (extended-low, pulled-back, extended-low again, each with drawn motion lines) -- forms a natural repeating batting loop when cycled 03->04->05->03. 02-05 recentered vertically (dy up to +/-13px) to share a single 199px ground margin -- as-imported they ranged 186-212px, which would've read as a small vertical jitter under the single fixed STATE_GROUND_OFFSET.whack; left-edge was deliberately left untouched across frames since the horizontal spread (left=0/128/208) is the actual swipe motion, not misalignment."
     }
   },
   "sitVariants": {

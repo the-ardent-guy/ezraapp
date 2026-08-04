@@ -1,13 +1,13 @@
 {
   "name": "ezra-desktop-cat-mini",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Ezra the desktop cat -- V1: sits on the cushion, blinks continuously, looks up, grooms, tail-wags, naps, takes short strolls, rarely crosses the screen, and rarely wanders off entirely",
   "main": "main.js",
   "author": "the-ardent-guy",
   "scripts": {
     "start": "electron .",
-    "dist:win": "electron-builder --win",
-    "dist:mac": "electron-builder --mac",
+    "dist:win": "electron-builder --win --publish never",
+    "dist:mac": "electron-builder --mac --publish never",
     "release": "electron-builder --publish always"
   },
   "devDependencies": {

@@ -8,6 +8,20 @@
 # ID -- users installing the Mac build will need to right-click > Open (or
 # System Settings > Privacy & Security > Open Anyway) the first time, since
 # it isn't notarized. That's a deliberate cost tradeoff, not an oversight.
+#
+# Two-stage build/publish, NOT electron-builder's own --publish. An earlier
+# version had each OS job call `electron-builder --publish always` directly,
+# which makes each job independently ask the GitHub API "does a release for
+# this tag exist yet?" before creating one. Even with the matrix forced to
+# run strictly sequentially (max-parallel: 1, confirmed via job timestamps),
+# this still produced two separate draft releases for the same tag -- the
+# GitHub Releases API has enough read-after-write lag that a check running
+# seconds after the other job's release-create call can still miss it.
+# Splitting into a `build` stage (just packages, no publishing, one artifact
+# upload per OS -- no Releases API involved at all) and a single non-matrix
+# `publish` stage (downloads both artifacts, creates the release once) means
+# only one process ever touches the Releases API for a given tag, so the
+# race is structurally impossible rather than just narrowed.
 
 name: Release
 
@@ -17,23 +31,18 @@ name: Release
       - "v*"
 
 jobs:
-  release:
+  build:
     strategy:
       fail-fast: false
-      # max-parallel: 1 -- Windows and Mac used to build in parallel, and each
-      # job's electron-builder independently checks "does a release for this
-      # tag exist yet?" before creating one. Racing meant they'd sometimes
-      # both say no and each create their own draft release for the same tag
-      # (one with just the Windows installer, one with just the Mac installer)
-      # instead of one release with both. Forcing the matrix to run
-      # sequentially means the second job always finds the first job's
-      # release already there and attaches its asset to it instead.
-      max-parallel: 1
       matrix:
-        os: [windows-latest, macos-latest]
+        include:
+          - os: windows-latest
+            script: dist:win
+            artifact: win-dist
+          - os: macos-latest
+            script: dist:mac
+            artifact: mac-dist
     runs-on: ${{ matrix.os }}
-    permissions:
-      contents: write
     defaults:
       run:
         working-directory: "Ezra App Mini"
@@ -46,9 +55,40 @@ jobs:
 
       - run: npm ci
 
-      - name: Build and publish
-        run: npm run release
+      - name: Build (no publish)
+        run: npm run ${{ matrix.script }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          # Installer + updater-feed files only -- not the win-unpacked/
+          # mac-unpacked staging folders, which are the packaged app's raw
+          # contents, not release assets.
+          path: |
+            Ezra App Mini/dist/*.exe
+            Ezra App Mini/dist/*.exe.blockmap
+            Ezra App Mini/dist/*.dmg
+            Ezra App Mini/dist/*.dmg.blockmap
+            Ezra App Mini/dist/*.zip
+            Ezra App Mini/dist/*.zip.blockmap
+            Ezra App Mini/dist/latest*.yml
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist-all
+          merge-multiple: true
+
+      - name: Create single combined release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          files: dist-all/*
         env:
-          # electron-builder's GitHub publisher reads GH_TOKEN specifically --
-          # the default GITHUB_TOKEN Actions provides has to be remapped to it.
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,6 +1,6 @@
 {
   "name": "ezra-desktop-cat-mini",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Ezra the desktop cat -- V1: sits on the cushion, blinks continuously, looks up, grooms, tail-wags, naps, takes short strolls, rarely crosses the screen, and rarely wanders off entirely",
   "main": "main.js",
   "author": "the-ardent-guy",

@@ -20,6 +20,15 @@ jobs:
   release:
     strategy:
       fail-fast: false
+      # max-parallel: 1 -- Windows and Mac used to build in parallel, and each
+      # job's electron-builder independently checks "does a release for this
+      # tag exist yet?" before creating one. Racing meant they'd sometimes
+      # both say no and each create their own draft release for the same tag
+      # (one with just the Windows installer, one with just the Mac installer)
+      # instead of one release with both. Forcing the matrix to run
+      # sequentially means the second job always finds the first job's
+      # release already there and attaches its asset to it instead.
+      max-parallel: 1
       matrix:
         os: [windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}

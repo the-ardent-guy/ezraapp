@@ -9,7 +9,7 @@
 <link rel="icon" href="assets/ezra-logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Shantell+Sans:ital,wght@0,400;0,600;0,700;0,800;1,600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Grandstander:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   @font-face{font-family:'Poppins';src:url('assets/fonts/Poppins-Regular.woff2') format('woff2');font-weight:400;font-display:swap;}
   @font-face{font-family:'Poppins';src:url('assets/fonts/Poppins-SemiBold.woff2') format('woff2');font-weight:600;font-display:swap;}
@@ -29,7 +29,7 @@
     --muted-2:#8a765d;
     --line:rgba(255,183,97,0.14);
     --line-2:rgba(255,183,97,0.26);
-    --display:'Shantell Sans','Segoe UI',sans-serif;
+    --display:'Grandstander','Segoe UI',sans-serif;
     --body:'Poppins','Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;
     --mono:'Space Mono',ui-monospace,'Cascadia Mono',Consolas,monospace;
     --glow:radial-gradient(60% 60% at 50% 40%, rgba(255,140,30,0.42), rgba(255,120,20,0.10) 55%, transparent 75%);
@@ -101,7 +101,7 @@
 
   /* ---------- HERO ---------- */
   .hero{position:relative;padding:clamp(40px,7vw,86px) 0 clamp(50px,6vw,78px);}
-  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(24px,4vw,56px);align-items:center;}
+  .hero-grid{display:grid;grid-template-columns:.86fr 1.14fr;gap:clamp(20px,3.5vw,48px);align-items:center;}
   .hero-copy .eyebrow{margin-bottom:22px;}
   .hero h1{font-size:clamp(2.9rem,6.4vw,5.1rem);color:var(--cream);margin-bottom:22px;}
   .hero h1 .pop{color:transparent;background:linear-gradient(120deg,var(--amber),var(--ember) 60%,var(--honey));
@@ -124,21 +124,23 @@
   .btn-ghost:hover{border-color:var(--amber);color:var(--honey);}
   .fineprint{font-family:var(--mono);font-size:.72rem;color:var(--muted-2);letter-spacing:.01em;line-height:1.5;margin:0;max-width:430px;}
 
-  .hero-art{position:relative;display:flex;justify-content:center;align-items:center;min-height:360px;}
-  .hero-art .halo{position:absolute;inset:-6% -8%;background:var(--glow);filter:blur(6px);z-index:0;}
-  .hero-art .ring{position:absolute;width:min(78%,430px);aspect-ratio:1;border-radius:50%;
+  /* Ezra sits on the LEFT, smaller — walking in from the left, balanced against the copy */
+  .hero-art{order:-1;position:relative;display:flex;justify-content:center;align-items:center;min-height:320px;
+    margin-left:clamp(-28px,-2.5vw,0px);}
+  .hero-art .halo{position:absolute;inset:-4% -10%;background:var(--glow);filter:blur(6px);z-index:0;}
+  .hero-art .ring{position:absolute;width:min(90%,330px);aspect-ratio:1;border-radius:50%;
     border:1px dashed var(--line-2);animation:spin 46s linear infinite;z-index:0;}
-  .hero-art img{position:relative;z-index:1;width:min(84%,440px);height:auto;
-    filter:drop-shadow(0 30px 40px rgba(0,0,0,.55));animation:float 7s ease-in-out infinite;}
-  .hero-art .tagfig{position:absolute;right:4%;bottom:4%;z-index:2;font-family:var(--mono);font-size:.64rem;
+  .hero-art img{position:relative;z-index:1;width:min(86%,318px);height:auto;
+    filter:drop-shadow(0 26px 36px rgba(0,0,0,.55));animation:float 7s ease-in-out infinite;}
+  .hero-art .tagfig{position:absolute;right:2%;bottom:2%;z-index:2;font-family:var(--mono);font-size:.62rem;
     letter-spacing:.08em;text-transform:uppercase;color:var(--honey);opacity:.8;}
   @keyframes float{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-14px) rotate(.6deg);}}
   @keyframes spin{to{transform:rotate(360deg);}}
 
   @media (max-width:860px){
     .hero-grid{grid-template-columns:1fr;gap:12px;}
-    .hero-art{order:-1;min-height:0;}
-    .hero-art img{width:min(66%,300px);}
+    .hero-art{order:-1;min-height:0;margin-left:0;}
+    .hero-art img{width:min(60%,260px);}
     .lede{max-width:none;}
   }
 
@@ -240,8 +242,12 @@
   .callout{border-radius:18px;padding:24px;position:relative;overflow:hidden;
     background:linear-gradient(160deg, rgba(255,138,26,.14), rgba(198,69,31,.06));
     border:1px solid var(--line-2);}
-  .callout .hl{font-family:var(--display);font-weight:800;font-size:1.15rem;color:var(--honey);margin:0 0 8px;}
+  .callout .hl{font-family:var(--display);font-weight:800;font-size:1.2rem;color:var(--honey);margin:0 0 4px;}
   .callout p{margin:0;color:var(--muted);font-size:.92rem;}
+  .beta-tag{display:inline-block;font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;
+    color:#1c1105;background:linear-gradient(135deg,var(--amber),var(--ember));padding:3px 10px;border-radius:30px;margin-bottom:12px;font-weight:700;}
+  .beta-bar{height:7px;border-radius:30px;background:rgba(255,200,130,.1);overflow:hidden;margin:10px 0 14px;border:1px solid var(--line);}
+  .beta-bar span{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--ember),var(--amber));box-shadow:0 0 12px rgba(255,120,20,.5);}
   .dl-note{margin-top:16px;color:var(--muted-2);font-size:.84rem;line-height:1.55;}
   @media (max-width:760px){.dl-grid{grid-template-columns:1fr;}}
 
@@ -297,7 +303,7 @@
           <a class="btn btn-primary" href="https://github.com/the-ardent-guy/ezraapp/releases/latest/download/Ezra-Setup.exe">Download for Windows</a>
           <a class="btn btn-ghost" href="https://github.com/the-ardent-guy/ezraapp/releases/latest/download/Ezra.dmg">Download for Mac</a>
         </div>
-        <p class="fineprint">// free for the first 30 people who show up.<br>everyone after that negotiates with her directly.</p>
+        <p class="fineprint">// the free beta is full — all 30 spots gone.<br>she's deciding what comes next. she'll take her time.</p>
       </div>
       <div class="hero-art">
         <span class="halo"></span>
@@ -420,8 +426,10 @@
       </div>
       <div class="reveal">
         <div class="callout">
-          <p class="hl">Free: first 30 users only</p>
-          <p>After that we'll decide what she's worth. Spoiler: more than you've paid for her attention so far, which was nothing, because she hasn't given you any.</p>
+          <span class="beta-tag">Beta · closed</span>
+          <p class="hl">Beta phase full — 30/30</p>
+          <div class="beta-bar"><span></span></div>
+          <p>All thirty free beta spots are spoken for — she filled them faster than she'd ever admit. You can still take her home below; what she's worth after beta is between you and her.</p>
         </div>
         <p class="dl-note">Both buttons download the latest build directly. Your computer might give the installer a suspicious look before letting her in — she's small and new, not corrupted. Windows: “More info” → “Run anyway.” Mac: right-click the app → “Open.”</p>
       </div>

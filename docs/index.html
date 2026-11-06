@@ -3,490 +3,262 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ezra: A Desktop Cat Who Outranks You</title>
+<title>Ezra — A Desktop Cat Who Outranks You</title>
+<script>document.documentElement.className+=' js';</script>
 <meta name="description" content="Ezra is a small, orange, extremely unbothered cat who lives in the corner of your screen. Free. Not negotiable.">
+<link rel="icon" href="assets/ezra-logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shantell+Sans:ital,wght@0,400;0,600;0,700;0,800;1,600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  @font-face{
-    font-family:'Poppins';
-    src:url('assets/fonts/Poppins-Regular.woff2') format('woff2');
-    font-weight:400;
-    font-style:normal;
-    font-display:swap;
-  }
-  @font-face{
-    font-family:'Poppins';
-    src:url('assets/fonts/Poppins-SemiBold.woff2') format('woff2');
-    font-weight:600;
-    font-style:normal;
-    font-display:swap;
-  }
-  @font-face{
-    font-family:'Poppins';
-    src:url('assets/fonts/Poppins-Bold.woff2') format('woff2');
-    font-weight:700;
-    font-style:normal;
-    font-display:swap;
-  }
+  @font-face{font-family:'Poppins';src:url('assets/fonts/Poppins-Regular.woff2') format('woff2');font-weight:400;font-display:swap;}
+  @font-face{font-family:'Poppins';src:url('assets/fonts/Poppins-SemiBold.woff2') format('woff2');font-weight:600;font-display:swap;}
+  @font-face{font-family:'Poppins';src:url('assets/fonts/Poppins-Bold.woff2') format('woff2');font-weight:700;font-display:swap;}
 
   :root{
-    --bg-0:#100c08;
-    --bg-1:#1a130c;
-    --bg-2:#221909;
-    --amber-1:#ffb347;
-    --amber-2:#ff8c1a;
-    --amber-3:#ffd9a0;
-    --cream:#fbf2e6;
-    --muted:#b8a690;
-    --line:#382a1a;
-    --font-mono:'Cascadia Mono','Cascadia Code',Consolas,'SFMono-Regular',Menlo,Monaco,'Courier New',monospace;
-    --font-display:var(--font-mono);
-    --font-body:'Poppins','Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;
+    --void:#0e0a06;
+    --espresso:#150e08;
+    --coffee:#1c130b;
+    --card:#20160d;
+    --ember:#ff7a1a;
+    --amber:#ffb24a;
+    --honey:#ffd79a;
+    --cream:#fdf3e4;
+    --rust:#c6451f;
+    --muted:#b29876;
+    --muted-2:#8a765d;
+    --line:rgba(255,183,97,0.14);
+    --line-2:rgba(255,183,97,0.26);
+    --display:'Shantell Sans','Segoe UI',sans-serif;
+    --body:'Poppins','Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;
+    --mono:'Space Mono',ui-monospace,'Cascadia Mono',Consolas,monospace;
+    --glow:radial-gradient(60% 60% at 50% 40%, rgba(255,140,30,0.42), rgba(255,120,20,0.10) 55%, transparent 75%);
+    --maxw:1200px;
   }
 
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
   body{
-    margin:0;
-    background:var(--bg-0);
-    color:var(--cream);
-    font-family:var(--font-body);
-    line-height:1.55;
-    overflow-x:hidden;
+    margin:0;background:var(--void);color:var(--cream);
+    font-family:var(--body);line-height:1.6;overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    position:relative;
+  }
+  /* base warm field — modular layered gradients */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+    background:
+      radial-gradient(90% 55% at 82% -5%, rgba(255,138,26,0.22), transparent 60%),
+      radial-gradient(70% 50% at 8% 8%, rgba(198,69,31,0.16), transparent 55%),
+      radial-gradient(120% 90% at 50% 120%, rgba(255,160,50,0.10), transparent 60%),
+      linear-gradient(180deg, var(--espresso), var(--void) 60%);
+  }
+  /* film grain */
+  body::after{
+    content:"";position:fixed;inset:0;z-index:40;pointer-events:none;opacity:.5;
+    mix-blend-mode:soft-light;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size:170px 170px;
   }
 
-  img{max-width:100%; display:block;}
+  img{max-width:100%;display:block;}
   a{color:inherit;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 clamp(18px,4vw,36px);}
+  .mono{font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;}
 
-  .wrap{
-    max-width:1180px;
-    margin:0 auto;
-    padding:0 24px;
+  .kicker{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--amber);
   }
+  .kicker::before{content:"";width:22px;height:1px;background:linear-gradient(90deg,var(--ember),transparent);}
 
-  .mono{
-    font-family:var(--font-mono);
-    text-transform:uppercase;
-    letter-spacing:0.06em;
-  }
-
-  h1,h2,h3{
-    font-family:var(--font-display);
-    font-weight:700;
-    letter-spacing:0;
-  }
+  h1,h2,h3{font-family:var(--display);font-weight:800;letter-spacing:-.01em;line-height:1.02;margin:0;}
 
   /* ---------- NAV ---------- */
-  .nav{
-    position:sticky;
-    top:0;
-    z-index:50;
-    background:rgba(16,12,8,0.9);
-    backdrop-filter:blur(8px);
-    border-bottom:1px solid var(--line);
-  }
-  .nav .wrap{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    height:68px;
-    gap:20px;
-  }
-  .brand{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    text-decoration:none;
-  }
-  .brand img{
-    width:34px;
-    height:34px;
-    object-fit:cover;
-    object-position:center;
-    border-radius:50%;
-    background:var(--bg-2);
-  }
-  .brand .brand-mark{
-    overflow:hidden;
-    width:34px;
-    height:34px;
-    border-radius:50%;
-    flex:none;
-  }
-  .brand .word{
-    font-family:var(--font-display);
-    font-weight:900;
-    font-size:1.3rem;
-    letter-spacing:-0.01em;
-    color:var(--cream);
-  }
-  .brand .tag{
-    font-family:var(--font-mono);
-    font-size:0.65rem;
-    color:var(--amber-2);
-    border:1px solid var(--line);
-    padding:2px 7px;
-    border-radius:4px;
-    letter-spacing:0.08em;
-  }
-  .nav-links{display:flex; align-items:center; gap:26px;}
-  .nav-links a{
-    text-decoration:none;
-    color:var(--muted);
-    transition:color .2s;
-    font-family:var(--font-mono);
-    font-size:0.78rem;
-    letter-spacing:0.08em;
-    text-transform:uppercase;
-  }
-  .nav-links a:hover{color:var(--amber-1);}
-  .nav-cta{
-    background:var(--amber-2);
-    color:#1a1108;
-    font-weight:800;
-    padding:9px 18px;
-    text-decoration:none;
-    font-size:0.85rem;
-    white-space:nowrap;
-    font-family:var(--font-mono);
-    letter-spacing:0.03em;
-  }
-  @media (max-width:760px){
-    .nav-links{display:none;}
-  }
+  .nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px) saturate(1.2);
+    background:linear-gradient(180deg, rgba(14,10,6,.82), rgba(14,10,6,.55));
+    border-bottom:1px solid var(--line);}
+  .nav .wrap{display:flex;align-items:center;justify-content:space-between;height:70px;gap:20px;}
+  .brand{display:flex;align-items:center;gap:11px;text-decoration:none;}
+  .brand .mark{width:38px;height:38px;border-radius:50%;overflow:hidden;flex:none;
+    box-shadow:0 0 0 1px var(--line-2), 0 6px 18px rgba(255,120,20,.25);background:var(--card);}
+  .brand .mark img{width:100%;height:100%;object-fit:cover;}
+  .brand .word{font-family:var(--display);font-weight:800;font-size:1.5rem;color:var(--cream);line-height:1;}
+  .brand .chip{font-family:var(--mono);font-size:.6rem;color:var(--amber);border:1px solid var(--line-2);
+    padding:2px 7px;border-radius:20px;letter-spacing:.08em;}
+  .nav-links{display:flex;align-items:center;gap:28px;}
+  .nav-links a{text-decoration:none;color:var(--muted);font-family:var(--mono);font-size:.72rem;
+    letter-spacing:.1em;text-transform:uppercase;transition:color .2s;}
+  .nav-links a:hover{color:var(--amber);}
+  .nav-cta{display:inline-flex;align-items:center;gap:7px;text-decoration:none;color:#1c1105;font-weight:800;
+    font-family:var(--display);font-size:.98rem;padding:9px 18px;border-radius:40px;
+    background:linear-gradient(135deg,var(--amber),var(--ember));
+    box-shadow:0 6px 18px rgba(255,120,20,.3), inset 0 1px 0 rgba(255,255,255,.4);
+    transition:transform .15s ease, box-shadow .15s ease;white-space:nowrap;}
+  .nav-cta:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(255,120,20,.42), inset 0 1px 0 rgba(255,255,255,.5);}
+  @media (max-width:820px){.nav-links{display:none;}}
 
   /* ---------- HERO ---------- */
-  .hero-grid{
-    display:grid;
-    grid-template-columns:minmax(300px,540px) 1fr;
-    min-height:640px;
-  }
-  .hero-copy{
-    padding:104px 32px 80px clamp(24px,5vw,64px);
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-  }
-  .hero-copy .kicker{
-    font-family:var(--font-mono);
-    font-size:0.72rem;
-    letter-spacing:0.12em;
-    text-transform:uppercase;
-    color:var(--amber-2);
-    margin-bottom:24px;
-  }
-  .hero-copy h1{
-    font-size:clamp(2.4rem, 4.6vw, 3.7rem);
-    line-height:1.05;
-    margin:0 0 28px;
-    color:var(--cream);
-    text-transform:uppercase;
-  }
-  .hero-copy h1 span{
-    color:var(--amber-1);
-  }
-  .meta-line{
-    font-family:var(--font-mono);
-    font-size:0.72rem;
-    letter-spacing:0.04em;
-    color:var(--muted);
-    text-transform:uppercase;
-    margin:0 0 30px;
-    padding-bottom:22px;
-    border-bottom:1px solid var(--line);
-  }
-  .meta-line b{color:var(--amber-2); font-weight:700;}
-  .hero-copy .lede{
-    font-size:1.08rem;
-    color:var(--muted);
-    max-width:480px;
-    margin:0 0 34px;
-  }
-  .hero-cta-row{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:18px;}
-  .btn{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    padding:15px 24px;
-    text-decoration:none;
-    font-weight:800;
-    font-size:0.95rem;
-    transition:transform .15s ease, background .15s ease;
-  }
+  .hero{position:relative;padding:clamp(40px,7vw,86px) 0 clamp(50px,6vw,78px);}
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(24px,4vw,56px);align-items:center;}
+  .hero-copy .eyebrow{margin-bottom:22px;}
+  .hero h1{font-size:clamp(2.9rem,6.4vw,5.1rem);color:var(--cream);margin-bottom:22px;}
+  .hero h1 .pop{color:transparent;background:linear-gradient(120deg,var(--amber),var(--ember) 60%,var(--honey));
+    -webkit-background-clip:text;background-clip:text;position:relative;}
+  .hero h1 .wig{display:inline-block;transform:rotate(-3deg);}
+  .status{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;}
+  .status .pill{font-family:var(--mono);font-size:.64rem;letter-spacing:.04em;text-transform:uppercase;
+    color:var(--honey);background:rgba(255,160,60,.08);border:1px solid var(--line);
+    padding:5px 11px;border-radius:30px;}
+  .status .pill b{color:var(--amber);font-weight:700;}
+  .lede{font-size:1.1rem;color:var(--muted);max-width:460px;margin:0 0 30px;}
+  .cta-row{display:flex;gap:13px;flex-wrap:wrap;margin-bottom:16px;}
+  .btn{display:inline-flex;align-items:center;gap:9px;padding:14px 24px;border-radius:44px;text-decoration:none;
+    font-family:var(--display);font-weight:700;font-size:1rem;transition:transform .15s ease, box-shadow .15s ease, border-color .15s;}
   .btn:hover{transform:translateY(-2px);}
-  .btn-primary{
-    background:var(--amber-2);
-    color:#1a1108;
-  }
-  .btn-primary:hover{background:var(--amber-1);}
-  .btn-ghost{
-    background:transparent;
-    color:var(--cream);
-    border:1px solid var(--line);
-  }
-  .btn-ghost:hover{border-color:var(--amber-2); color:var(--amber-1);}
-  .price-line{
-    font-family:var(--font-mono);
-    font-size:0.78rem;
-    color:var(--amber-2);
-    letter-spacing:0.01em;
-    margin:0;
+  .btn-primary{color:#1c1105;background:linear-gradient(135deg,var(--amber),var(--ember));
+    box-shadow:0 10px 26px rgba(255,120,20,.34), inset 0 1px 0 rgba(255,255,255,.45);}
+  .btn-primary:hover{box-shadow:0 14px 34px rgba(255,120,20,.46), inset 0 1px 0 rgba(255,255,255,.55);}
+  .btn-ghost{color:var(--cream);background:rgba(255,200,130,.04);border:1px solid var(--line-2);}
+  .btn-ghost:hover{border-color:var(--amber);color:var(--honey);}
+  .fineprint{font-family:var(--mono);font-size:.72rem;color:var(--muted-2);letter-spacing:.01em;line-height:1.5;margin:0;max-width:430px;}
+
+  .hero-art{position:relative;display:flex;justify-content:center;align-items:center;min-height:360px;}
+  .hero-art .halo{position:absolute;inset:-6% -8%;background:var(--glow);filter:blur(6px);z-index:0;}
+  .hero-art .ring{position:absolute;width:min(78%,430px);aspect-ratio:1;border-radius:50%;
+    border:1px dashed var(--line-2);animation:spin 46s linear infinite;z-index:0;}
+  .hero-art img{position:relative;z-index:1;width:min(84%,440px);height:auto;
+    filter:drop-shadow(0 30px 40px rgba(0,0,0,.55));animation:float 7s ease-in-out infinite;}
+  .hero-art .tagfig{position:absolute;right:4%;bottom:4%;z-index:2;font-family:var(--mono);font-size:.64rem;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--honey);opacity:.8;}
+  @keyframes float{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-14px) rotate(.6deg);}}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  @media (max-width:860px){
+    .hero-grid{grid-template-columns:1fr;gap:12px;}
+    .hero-art{order:-1;min-height:0;}
+    .hero-art img{width:min(66%,300px);}
+    .lede{max-width:none;}
   }
 
-  .hero-portrait{
-    position:relative;
-    overflow:hidden;
-    min-height:420px;
-    background:var(--bg-1);
-  }
-  .hero-portrait img{
-    position:absolute;
-    inset:0;
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    transform:scale(1.32);
-    transform-origin:52% 20%;
-  }
-  .hero-portrait::after{
-    content:"";
-    position:absolute;
-    inset:0;
-    background:linear-gradient(0deg, rgba(10,7,4,0.65) 0%, transparent 28%);
-  }
-  .portrait-caption{
-    position:absolute;
-    left:22px;
-    bottom:18px;
-    z-index:2;
-    font-family:var(--font-mono);
-    font-size:0.7rem;
-    letter-spacing:0.1em;
-    text-transform:uppercase;
-    color:var(--amber-3);
-  }
+  /* ---------- SECTION SCAFFOLD ---------- */
+  section{padding:clamp(56px,8vw,96px) 0;}
+  .sec-head{max-width:620px;margin:0 0 clamp(30px,4vw,48px);}
+  .sec-head h2{font-size:clamp(2rem,4.2vw,3.1rem);color:var(--cream);margin:14px 0 14px;}
+  .sec-head p{color:var(--muted);font-size:1.04rem;margin:0;max-width:520px;}
 
-  @media (max-width:900px){
-    .hero-grid{grid-template-columns:1fr;}
-    .hero-portrait{order:-1; min-height:52vh;}
-    .hero-copy{padding:44px 24px 56px;}
-    .hero-copy .lede{max-width:none;}
-  }
+  /* ---------- VIBE pull quote ---------- */
+  .vibe{position:relative;}
+  .vibe .wrap{position:relative;}
+  .vibe-quote{font-family:var(--display);font-weight:600;font-size:clamp(1.5rem,3.4vw,2.5rem);
+    line-height:1.3;color:var(--honey);max-width:900px;margin:18px 0 0;letter-spacing:-.01em;}
+  .vibe-quote b{color:var(--cream);background:linear-gradient(transparent 62%, rgba(255,138,26,.28) 62%);}
+  .vibe .claw{font-size:2.4rem;line-height:1;margin-bottom:-6px;filter:saturate(1.2);}
 
-  /* ---------- SECTION HEADINGS ---------- */
-  section{padding:76px 0;}
-  .section-head{
-    max-width:640px;
-    margin:0 0 44px;
-  }
-  .section-head .kicker{
-    display:inline-block;
-    font-family:var(--font-mono);
-    font-size:0.72rem;
-    letter-spacing:0.12em;
-    text-transform:uppercase;
-    color:var(--amber-2);
-    margin-bottom:14px;
-  }
-  .section-head h2{
-    font-size:clamp(1.7rem, 3vw, 2.4rem);
-    margin:0 0 14px;
-    color:var(--cream);
-    text-transform:uppercase;
-  }
-  .section-head p{
-    color:var(--muted);
-    font-size:1rem;
-    margin:0;
-    max-width:520px;
-  }
+  /* ---------- WILD (video) ---------- */
+  .wild{position:relative;}
+  .screen{position:relative;border-radius:22px;overflow:hidden;margin-top:12px;
+    background:linear-gradient(160deg, #241a10, #130d07);
+    border:1px solid var(--line-2);
+    box-shadow:0 40px 90px -30px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,210,150,.14);}
+  .screen::before{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+    background:radial-gradient(120% 90% at 50% 120%, rgba(255,140,30,.18), transparent 55%),
+               linear-gradient(0deg, rgba(14,9,5,.5), transparent 30%);}
+  .screen .bar{position:relative;z-index:3;display:flex;align-items:center;gap:8px;padding:12px 16px;
+    border-bottom:1px solid var(--line);background:rgba(10,7,4,.4);}
+  .screen .bar .dot{width:11px;height:11px;border-radius:50%;background:#43301c;}
+  .screen .bar .dot:nth-child(1){background:#ff7a5c;}
+  .screen .bar .dot:nth-child(2){background:#ffcf5c;}
+  .screen .bar .dot:nth-child(3){background:#7ad17a;}
+  .screen .bar .addr{margin-left:12px;font-family:var(--mono);font-size:.66rem;color:var(--muted-2);letter-spacing:.06em;}
+  .screen video{display:block;width:100%;height:auto;}
+  .wild-note{margin-top:20px;font-family:var(--mono);font-size:.74rem;color:var(--muted-2);letter-spacing:.02em;}
 
-  .divider{
-    height:1px;
-    background:var(--line);
-  }
+  /* ---------- ROADMAP BENTO ---------- */
+  .roadmap{position:relative;}
+  .roadmap::before{content:"";position:absolute;inset:0;z-index:-1;
+    background:radial-gradient(80% 60% at 20% 0%, rgba(198,69,31,.12), transparent 55%);}
+  .bento{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:minmax(150px,auto);gap:16px;}
+  .b-card{position:relative;border-radius:18px;padding:26px;display:flex;flex-direction:column;overflow:hidden;
+    background:linear-gradient(165deg, rgba(42,29,17,.9), rgba(24,16,9,.9));
+    border:1px solid var(--line);box-shadow:inset 0 1px 0 rgba(255,210,150,.08);
+    transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease;}
+  .b-card::after{content:"";position:absolute;inset:0;border-radius:18px;pointer-events:none;opacity:0;
+    box-shadow:0 24px 60px -24px rgba(255,120,20,.5);transition:opacity .25s;}
+  .b-card:hover{transform:translateY(-4px);border-color:var(--line-2);}
+  .b-card:hover::after{opacity:1;}
+  .b-ico{width:46px;height:46px;border-radius:13px;display:grid;place-items:center;font-size:1.5rem;
+    background:radial-gradient(120% 120% at 30% 20%, rgba(255,160,60,.22), rgba(255,120,20,.06));
+    border:1px solid var(--line);margin-bottom:16px;flex:none;}
+  .b-badge{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);
+    border:1px solid var(--line-2);border-radius:30px;padding:3px 9px;align-self:flex-start;margin-bottom:14px;}
+  .b-card h3{font-size:1.3rem;color:var(--cream);margin:0 0 9px;}
+  .b-card p{margin:0;color:var(--muted);font-size:.95rem;}
 
-  /* ---------- THE VIBE (flowing behaviors copy) ---------- */
-  .vibe{padding:56px 0;}
-  .vibe .kicker{
-    display:block;
-    font-family:var(--font-mono);
-    font-size:0.72rem;
-    letter-spacing:0.12em;
-    text-transform:uppercase;
-    color:var(--amber-2);
-    margin-bottom:16px;
-  }
-  .vibe p{
-    font-size:1.2rem;
-    line-height:1.6;
-    color:var(--amber-3);
-    max-width:760px;
-    margin:0;
-  }
-  .vibe p b{color:var(--cream);}
+  .b-big{grid-column:span 2;grid-row:span 2;
+    background:linear-gradient(160deg, rgba(58,34,14,.92), rgba(26,16,8,.95));}
+  .b-big h3{font-size:1.7rem;margin-bottom:12px;}
+  .b-big .intro{margin:0 0 22px;color:var(--muted);}
+  .b-list{display:flex;flex-direction:column;gap:16px;}
+  .b-item{display:flex;gap:14px;align-items:flex-start;}
+  .b-item .b-ico{width:40px;height:40px;font-size:1.25rem;margin:0;border-radius:11px;}
+  .b-item b{display:block;color:var(--cream);font-family:var(--display);font-weight:700;font-size:1.02rem;margin-bottom:3px;}
+  .b-item p{color:var(--muted);font-size:.88rem;}
+  .b-stats{justify-content:center;gap:0;background:linear-gradient(165deg, rgba(20,13,7,.95), rgba(12,8,4,.95));}
+  .b-stats .row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);}
+  .b-stats .row:last-child{border-bottom:0;}
+  .b-stats .k{font-family:var(--mono);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-2);}
+  .b-stats .v{font-family:var(--mono);font-size:.74rem;color:var(--amber);text-align:right;}
+  .roadmap-tease{margin-top:28px;color:var(--muted-2);font-style:italic;font-size:.96rem;}
 
-  /* ---------- BENTO (coming soon) ---------- */
-  .soon{
-    background:var(--bg-1);
-    border-top:1px solid var(--line);
-    border-bottom:1px solid var(--line);
+  @media (max-width:860px){
+    .bento{grid-template-columns:repeat(2,1fr);}
+    .b-big{grid-column:span 2;grid-row:auto;}
   }
-  .bento{
-    display:grid;
-    grid-template-columns:repeat(4, 1fr);
-    grid-auto-rows:minmax(150px, auto);
-    gap:16px;
-  }
-  .bento-card{
-    background:var(--bg-2);
-    border:1px solid var(--line);
-    padding:26px 26px 24px;
-    display:flex;
-    flex-direction:column;
-    transition:border-color .2s ease;
-  }
-  .bento-card:hover{border-color:var(--amber-2);}
-  .bento-card .emoji{font-size:1.6rem; margin-bottom:auto; padding-bottom:16px;}
-  .bento-card .badge{
-    font-family:var(--font-mono);
-    font-size:0.65rem;
-    letter-spacing:0.1em;
-    color:var(--amber-2);
-    border:1px solid var(--line);
-    display:inline-block;
-    padding:3px 8px;
-    margin-bottom:14px;
-    align-self:flex-start;
-  }
-  .bento-card h3{
-    margin:0 0 10px;
-    color:var(--cream);
-    font-size:1.25rem;
-    text-transform:uppercase;
-  }
-  .bento-card p{margin:0; color:var(--muted); font-size:0.94rem;}
-
-  .bento-c{grid-column:span 1; grid-row:span 1;}
-  .bento-d{
-    grid-column:span 1; grid-row:span 1;
-    justify-content:center;
-    background:var(--bg-0);
-  }
-  .bento-d .stat{
-    font-family:var(--font-mono);
-    font-size:0.72rem;
-    color:var(--muted);
-    letter-spacing:0.04em;
-    text-transform:uppercase;
-    margin:0 0 8px;
-  }
-  .bento-d .stat b{color:var(--amber-2); display:block; font-size:0.7rem; margin-bottom:2px;}
-  .bento-d .stat:last-child{margin-bottom:0;}
-
-  .bento-e{grid-column:span 2; grid-row:span 2;}
-  .bento-e h3{font-size:1.5rem;}
-  .bento-e .bento-e-intro{margin:0 0 22px;}
-  .bento-e-list{
-    display:flex;
-    flex-direction:column;
-    gap:18px;
-  }
-  .bento-e-item{display:flex; gap:14px; align-items:flex-start;}
-  .bento-e-item .emoji{font-size:1.4rem; margin:0; padding:0; flex-shrink:0;}
-  .bento-e-item b{
-    display:block;
-    color:var(--cream);
-    font-size:1rem;
-    text-transform:uppercase;
-    margin-bottom:4px;
-  }
-  .bento-e-item p{margin:0; color:var(--muted); font-size:0.88rem;}
-
-  .soon-tease{
-    margin-top:32px;
-    color:var(--muted);
-    font-size:0.95rem;
-    font-style:italic;
-  }
-
-  @media (max-width:900px){
-    .bento{grid-template-columns:repeat(2, 1fr);}
-    .bento-c{grid-column:span 1;}
-    .bento-d{grid-column:span 1;}
-    .bento-e{grid-column:span 2; grid-row:auto;}
-  }
-  @media (max-width:560px){
+  @media (max-width:540px){
     .bento{grid-template-columns:1fr;}
-    .bento-c,.bento-d,.bento-e{grid-column:span 1; grid-row:auto;}
+    .b-big{grid-column:span 1;}
   }
 
   /* ---------- DOWNLOAD ---------- */
-  .download-buttons{
-    display:flex;
-    gap:16px;
-    flex-wrap:wrap;
-    margin-top:32px;
-  }
-  .platform-btn{
-    display:flex;
-    align-items:center;
-    gap:14px;
-    background:var(--bg-1);
-    border:1px solid var(--line);
-    padding:18px 28px;
-    text-decoration:none;
-    color:var(--cream);
-    min-width:220px;
-    transition:border-color .15s ease, transform .15s ease;
-  }
-  .platform-btn:hover{
-    transform:translateY(-3px);
-    border-color:var(--amber-2);
-  }
-  .platform-btn .icon{font-size:1.5rem;}
-  .platform-btn .label{text-align:left;}
-  .platform-btn .label .top{font-family:var(--font-mono); font-size:0.68rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em;}
-  .platform-btn .label .main{font-size:1.02rem; font-weight:700;}
-  .price-callout{
-    margin-top:26px;
-    padding:16px 20px;
-    border:1px dashed var(--line);
-    max-width:560px;
-  }
-  .price-callout .headline{
-    font-family:var(--font-mono);
-    font-size:0.85rem;
-    letter-spacing:0.05em;
-    color:var(--amber-1);
-    text-transform:uppercase;
-    margin:0 0 6px;
-  }
-  .price-callout p{margin:0; color:var(--muted); font-size:0.9rem;}
-  .download-note{
-    margin-top:20px;
-    color:var(--muted);
-    font-size:0.85rem;
-  }
+  .download .wrap{position:relative;}
+  .dl-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(20px,4vw,48px);align-items:start;}
+  .plat{display:flex;flex-direction:column;gap:14px;}
+  .plat-btn{display:flex;align-items:center;gap:16px;text-decoration:none;color:var(--cream);
+    padding:18px 22px;border-radius:16px;
+    background:linear-gradient(160deg, rgba(42,29,17,.9), rgba(22,15,8,.9));
+    border:1px solid var(--line);transition:transform .15s ease, border-color .15s ease, box-shadow .15s;}
+  .plat-btn:hover{transform:translateY(-3px);border-color:var(--amber);box-shadow:0 18px 40px -20px rgba(255,120,20,.5);}
+  .plat-btn .ico{width:48px;height:48px;border-radius:13px;display:grid;place-items:center;font-size:1.5rem;flex:none;
+    background:radial-gradient(120% 120% at 30% 20%, rgba(255,160,60,.2), rgba(255,120,20,.05));border:1px solid var(--line);}
+  .plat-btn .top{font-family:var(--mono);font-size:.64rem;color:var(--muted-2);text-transform:uppercase;letter-spacing:.1em;}
+  .plat-btn .main{font-family:var(--display);font-weight:700;font-size:1.08rem;}
+  .plat-btn .arrow{margin-left:auto;color:var(--amber);font-size:1.3rem;transition:transform .15s;}
+  .plat-btn:hover .arrow{transform:translateX(4px);}
+
+  .callout{border-radius:18px;padding:24px;position:relative;overflow:hidden;
+    background:linear-gradient(160deg, rgba(255,138,26,.14), rgba(198,69,31,.06));
+    border:1px solid var(--line-2);}
+  .callout .hl{font-family:var(--display);font-weight:800;font-size:1.15rem;color:var(--honey);margin:0 0 8px;}
+  .callout p{margin:0;color:var(--muted);font-size:.92rem;}
+  .dl-note{margin-top:16px;color:var(--muted-2);font-size:.84rem;line-height:1.55;}
+  @media (max-width:760px){.dl-grid{grid-template-columns:1fr;}}
 
   /* ---------- FOOTER ---------- */
-  footer{
-    border-top:1px solid var(--line);
-    padding:36px 0;
-    color:var(--muted);
-    font-size:0.85rem;
-  }
-  footer .wrap{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    flex-wrap:wrap;
-    gap:10px;
-  }
-  footer a{color:var(--amber-1); text-decoration:none; font-family:var(--font-mono); font-size:0.8rem;}
+  footer{border-top:1px solid var(--line);padding:38px 0;color:var(--muted-2);font-size:.86rem;}
+  footer .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;}
+  footer .love{margin:0;max-width:540px;}
+  footer a{color:var(--amber);text-decoration:none;font-family:var(--mono);font-size:.78rem;}
   footer a:hover{text-decoration:underline;}
-  footer .love{margin:0; max-width:520px;}
-  @media (max-width:600px){
-    footer .wrap{flex-direction:column; align-items:flex-start; text-align:left;}
+  @media (max-width:620px){footer .wrap{flex-direction:column;align-items:flex-start;}}
+
+  /* reveal — only hides when JS is on, so no-JS visitors still see everything */
+  .js .reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease, transform .7s ease;}
+  .js .reveal.in{opacity:1;transform:none;}
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;}
+    .js .reveal{opacity:1;transform:none;transition:none;}
   }
 </style>
 </head>
@@ -494,158 +266,190 @@
 
 <nav class="nav">
   <div class="wrap">
-    <a href="#" class="brand">
-      <span class="brand-mark"><img src="assets/ezra-logo.png" alt="Ezra's face, logo mark"></span>
-      <span class="word">EZRA</span>
-      <span class="tag mono">v1.0</span>
+    <a href="#top" class="brand">
+      <span class="mark"><img src="assets/ezra-logo.png" alt="Ezra's face"></span>
+      <span class="word">Ezra</span>
+      <span class="chip">v1.0</span>
     </a>
     <div class="nav-links">
+      <a href="#wild">In The Wild</a>
       <a href="#soon">Coming Soon</a>
       <a href="#download">Download</a>
-      <a href="https://github.com/the-ardent-guy/ezraapp">Github</a>
+      <a href="https://github.com/the-ardent-guy/ezraapp">GitHub</a>
     </div>
-    <a class="nav-cta" href="#download">Get Ezra →</a>
+    <a class="nav-cta" href="#download">Get Ezra 🐾</a>
   </div>
 </nav>
 
-<header>
-  <div class="hero-grid">
-    <div class="hero-copy">
-      <span class="kicker">Desktop Pet / Uninvited</span>
-      <h1>Your desktop<br>has an owner<br><span>now.</span></h1>
-      <p class="meta-line">Status: <b>not technically alive, still running</b> &nbsp;·&nbsp; mood: <b>unbothered</b> &nbsp;·&nbsp; price: <b>free (for now)</b></p>
-      <p class="lede">A very small, very orange cat has claimed a corner of your screen. She sits, wanders, naps, and judges. Mostly you.</p>
-      <div class="hero-cta-row">
-        <a class="btn btn-primary" href="https://github.com/the-ardent-guy/ezraapp/releases/latest/download/Ezra-Setup.exe">Download for Windows</a>
-        <a class="btn btn-ghost" href="https://github.com/the-ardent-guy/ezraapp/releases/latest/download/Ezra.dmg">Download for Mac</a>
+<header id="top" class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <span class="kicker eyebrow">Desktop pet · uninvited</span>
+        <h1>Your desktop<br>has an <span class="wig pop">owner</span><br>now.</h1>
+        <div class="status">
+          <span class="pill">status: <b>not technically alive, still running</b></span>
+          <span class="pill">mood: <b>unbothered</b></span>
+          <span class="pill">price: <b>free (for now)</b></span>
+        </div>
+        <p class="lede">A very small, very orange cat has claimed a corner of your screen. She sits, wanders, naps, and judges. Mostly you.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="https://github.com/the-ardent-guy/ezraapp/releases/latest/download/Ezra-Setup.exe">Download for Windows</a>
+          <a class="btn btn-ghost" href="https://github.com/the-ardent-guy/ezraapp/releases/latest/download/Ezra.dmg">Download for Mac</a>
+        </div>
+        <p class="fineprint">// free for the first 30 people who show up.<br>everyone after that negotiates with her directly.</p>
       </div>
-      <p class="price-line mono">// free for the first 30 people who show up. everyone after that negotiates with her directly.</p>
-    </div>
-    <div class="hero-portrait">
-      <img src="assets/ezra-hero.png" alt="Ezra, a stylized orange tabby cat with a red bell collar, cropped in close on her head and shoulders">
-      <span class="portrait-caption mono">Fig. 01: Ezra, mid-judgement</span>
+      <div class="hero-art">
+        <span class="halo"></span>
+        <span class="ring"></span>
+        <img src="assets/ezra-hero.png" alt="Ezra, a stylized orange tabby cat with a red bell collar">
+        <span class="tagfig">Fig. 01 — Ezra, mid-judgement</span>
+      </div>
     </div>
   </div>
 </header>
 
 <section class="vibe">
-  <div class="wrap">
-    <span class="kicker mono">What She Does (Loosely)</span>
-    <p>Mostly she sits and radiates quiet, unearned authority over your screen. Every so often she'll stretch through a full yawn, glance sharply at something that isn't there, wander off mid-thought, and saunter back like nothing happened, all <b>without your input, consent, or applause.</b></p>
+  <div class="wrap reveal">
+    <div class="claw">🐾</div>
+    <span class="kicker">What she does (loosely)</span>
+    <p class="vibe-quote">Mostly she sits and radiates quiet, unearned authority over your screen. Every so often she'll stretch through a full yawn, glance sharply at something that isn't there, wander off mid-thought, and saunter back like nothing happened — all <b>without your input, consent, or applause.</b></p>
   </div>
 </section>
 
-<div class="divider"></div>
+<section id="wild" class="wild">
+  <div class="wrap reveal">
+    <div class="sec-head">
+      <span class="kicker">Caught in the wild</span>
+      <h2>She doesn't know<br>she's being recorded.</h2>
+      <p>Here she is, loose on a real desktop at 1:55 AM, pacing the taskbar like she owns the building. She does not. She thinks she does.</p>
+    </div>
+    <div class="screen">
+      <div class="bar">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="addr">ezra.exe — live on someone's actual laptop</span>
+      </div>
+      <video src="assets/ezra-walk.mp4" poster="assets/ezra-walk-poster.webp"
+             muted loop playsinline autoplay preload="metadata"
+             aria-label="Ezra the orange cat walking back and forth across the bottom of a real laptop desktop, above the Windows taskbar."></video>
+    </div>
+    <p class="wild-note">// no cat was directed. she simply does this.</p>
+  </div>
+</section>
 
-<section id="soon" class="soon">
+<section id="soon" class="roadmap">
   <div class="wrap">
-    <div class="section-head">
-      <span class="kicker">Roadmap (Loose Term)</span>
+    <div class="sec-head reveal">
+      <span class="kicker">Roadmap (loose term)</span>
       <h2>Things she'll eventually allow</h2>
       <p>No dates. No promises. She works when she wants to (which, statistically, is never). We're not much better.</p>
     </div>
-
     <div class="bento">
 
-      <div class="bento-card bento-e">
-        <span class="badge mono">The Big One</span>
-        <h3>She's Going Interactive</h3>
-        <p class="bento-e-intro">Right now she mostly tolerates your existence from a distance. Next up, she starts responding to it. All of it lands together, not doled out one feature at a time.</p>
-        <div class="bento-e-list">
-          <div class="bento-e-item">
-            <span class="emoji">🐾</span>
-            <div>
-              <b>Cursor-whack</b>
-              <p>Get your mouse too close and she will swat at it. Repeatedly. You started this.</p>
-            </div>
+      <div class="b-card b-big reveal">
+        <span class="b-badge">The big one</span>
+        <h3>She's going interactive</h3>
+        <p class="intro">Right now she mostly tolerates your existence from a distance. Next up, she starts responding to it. All of it lands together — not doled out one feature at a time.</p>
+        <div class="b-list">
+          <div class="b-item">
+            <span class="b-ico">🐾</span>
+            <div><b>Cursor-whack</b><p>Get your mouse too close and she will swat at it. Repeatedly. You started this.</p></div>
           </div>
-          <div class="bento-e-item">
-            <span class="emoji">🪟</span>
-            <div>
-              <b>Tab-hopping</b>
-              <p>She'll climb up onto your open windows and perch on the tab bar like she pays rent there.</p>
-            </div>
+          <div class="b-item">
+            <span class="b-ico">🪟</span>
+            <div><b>Tab-hopping</b><p>She'll climb onto your open windows and perch on the tab bar like she pays rent there.</p></div>
           </div>
-          <div class="bento-e-item">
-            <span class="emoji">🔪</span>
-            <div>
-              <b>Window-scratching</b>
-              <p>Your windows are furniture now, apparently. Act accordingly.</p>
-            </div>
+          <div class="b-item">
+            <span class="b-ico">🔪</span>
+            <div><b>Window-scratching</b><p>Your windows are furniture now, apparently. Act accordingly.</p></div>
           </div>
         </div>
       </div>
 
-      <div class="bento-card bento-c">
-        <span class="badge mono">Priority: Hers</span>
-        <span class="emoji">🥣</span>
-        <h3>Feeding Her</h3>
+      <div class="b-card reveal">
+        <span class="b-ico">🥣</span>
+        <span class="b-badge">Priority: hers</span>
+        <h3>Feeding her</h3>
         <p>A bowl, placed before her. She'll judge it at her leisure.</p>
       </div>
 
-      <div class="bento-card bento-c">
-        <span class="badge mono">Soon-ish</span>
-        <span class="emoji">🌿</span>
-        <h3>The Zaza</h3>
+      <div class="b-card reveal">
+        <span class="b-ico">🌿</span>
+        <span class="b-badge">Soon-ish</span>
+        <h3>The zaza</h3>
         <p>One tap of catnip, full gremlin in under a second. No refunds.</p>
       </div>
 
-      <div class="bento-card bento-c">
-        <span class="badge mono">Classified</span>
-        <span class="emoji">📦</span>
-        <h3>...And More</h3>
+      <div class="b-card reveal">
+        <span class="b-ico">📦</span>
+        <span class="b-badge">Classified</span>
+        <h3>…and more</h3>
         <p>There's more in the backlog than we're saying out loud. She's got range.</p>
       </div>
 
-      <div class="bento-card bento-d">
-        <p class="stat"><b>ETA</b>when she feels like it</p>
-        <p class="stat"><b>Updates</b>could be anytime</p>
-        <p class="stat"><b>Version</b>v1.0 → v.eventually</p>
+      <div class="b-card b-stats reveal">
+        <div class="row"><span class="k">ETA</span><span class="v">when she feels like it</span></div>
+        <div class="row"><span class="k">Updates</span><span class="v">could be anytime</span></div>
+        <div class="row"><span class="k">Version</span><span class="v">v1.0 → v.eventually</span></div>
       </div>
 
     </div>
-    <p class="soon-tease">No promises on timelines. She works when she wants to. So, honestly, do we.</p>
+    <p class="roadmap-tease reveal">No promises on timelines. She works when she wants to. So, honestly, do we.</p>
   </div>
 </section>
 
 <section id="download" class="download">
   <div class="wrap">
-    <div class="section-head">
-      <span class="kicker">Take Her Home</span>
-      <h2>Give her a corner of your screen</h2>
+    <div class="sec-head reveal">
+      <span class="kicker">Take her home</span>
+      <h2>Give her a corner<br>of your screen</h2>
       <p>Free. Tiny. Emotionally unavailable. Pick your platform.</p>
     </div>
-    <div class="download-buttons">
-      <a class="platform-btn" href="https://github.com/the-ardent-guy/ezraapp/releases/latest/download/Ezra-Setup.exe">
-        <span class="icon">🪟</span>
-        <span class="label">
-          <span class="top">Windows</span>
-          <span class="main">Download for Windows</span>
-        </span>
-      </a>
-      <a class="platform-btn" href="https://github.com/the-ardent-guy/ezraapp/releases/latest/download/Ezra.dmg">
-        <span class="icon">🍎</span>
-        <span class="label">
-          <span class="top">macOS</span>
-          <span class="main">Download for Mac</span>
-        </span>
-      </a>
+    <div class="dl-grid">
+      <div class="plat reveal">
+        <a class="plat-btn" href="https://github.com/the-ardent-guy/ezraapp/releases/latest/download/Ezra-Setup.exe">
+          <span class="ico">🪟</span>
+          <span><span class="top">Windows</span><br><span class="main">Download for Windows</span></span>
+          <span class="arrow">↓</span>
+        </a>
+        <a class="plat-btn" href="https://github.com/the-ardent-guy/ezraapp/releases/latest/download/Ezra.dmg">
+          <span class="ico">🍎</span>
+          <span><span class="top">macOS</span><br><span class="main">Download for Mac</span></span>
+          <span class="arrow">↓</span>
+        </a>
+      </div>
+      <div class="reveal">
+        <div class="callout">
+          <p class="hl">Free: first 30 users only</p>
+          <p>After that we'll decide what she's worth. Spoiler: more than you've paid for her attention so far, which was nothing, because she hasn't given you any.</p>
+        </div>
+        <p class="dl-note">Both buttons download the latest build directly. Your computer might give the installer a suspicious look before letting her in — she's small and new, not corrupted. Windows: “More info” → “Run anyway.” Mac: right-click the app → “Open.”</p>
+      </div>
     </div>
-    <div class="price-callout">
-      <p class="headline mono">Free: first 30 users only</p>
-      <p>After that we'll decide what she's worth. Spoiler: more than you've paid for her attention so far, which was nothing, because she hasn't given you any.</p>
-    </div>
-    <p class="download-note">Both buttons download the latest build directly. She was worth more than free. She's not going to charge you for it. Yet.</p>
-    <p class="download-note">Your computer might give the installer a suspicious look before letting her in — she's small and new, not corrupted. Windows: "More info" → "Run anyway." Mac: right-click the app → "Open."</p>
   </div>
 </section>
 
 <footer>
   <div class="wrap">
     <p class="love">Made with love, for Ezra, and for cats everywhere who also deserve to be mildly insufferable in app form.</p>
-    <a href="https://github.com/the-ardent-guy/ezraapp">github.com/the-ardent-guy/ezraapp</a>
+    <a href="https://github.com/the-ardent-guy/ezraapp">github.com/the-ardent-guy/ezraapp ↗</a>
   </div>
 </footer>
 
+<script>
+  (function(){
+    var els=document.querySelectorAll('.reveal');
+    if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('in');});return;}
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}});
+    },{threshold:0.12});
+    els.forEach(function(e){io.observe(e);});
+    // failsafe: never let content stay hidden
+    setTimeout(function(){els.forEach(function(e){e.classList.add('in');});},2600);
+    // nudge autoplay on mobile
+    var v=document.querySelector('.wild video');
+    if(v){var p=v.play();if(p&&p.catch)p.catch(function(){});}
+  })();
+</script>
 </body>
 </html>

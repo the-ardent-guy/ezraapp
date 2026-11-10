@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ezra — A Desktop Cat Who Outranks You</title>
+<title>Ezra: A Desktop Cat Who Outranks You</title>
 <script>document.documentElement.className+=' js';</script>
 <meta name="description" content="Ezra is a small, orange, extremely unbothered cat who lives in the corner of your screen. Free. Not negotiable.">
 <link rel="icon" href="assets/ezra-logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Grandstander:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   @font-face{font-family:'Poppins';src:url('assets/fonts/Poppins-Regular.woff2') format('woff2');font-weight:400;font-display:swap;}
   @font-face{font-family:'Poppins';src:url('assets/fonts/Poppins-SemiBold.woff2') format('woff2');font-weight:600;font-display:swap;}
@@ -29,7 +29,7 @@
     --muted-2:#8a765d;
     --line:rgba(255,183,97,0.14);
     --line-2:rgba(255,183,97,0.26);
-    --display:'Grandstander','Segoe UI',sans-serif;
+    --display:'Syne','Segoe UI',sans-serif;
     --body:'Poppins','Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;
     --mono:'Space Mono',ui-monospace,'Cascadia Mono',Consolas,monospace;
     --glow:radial-gradient(60% 60% at 50% 40%, rgba(255,140,30,0.42), rgba(255,120,20,0.10) 55%, transparent 75%);
@@ -44,7 +44,7 @@
     -webkit-font-smoothing:antialiased;
     position:relative;
   }
-  /* base warm field — modular layered gradients */
+  /* base warm field: modular layered gradients */
   body::before{
     content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
     background:
@@ -100,8 +100,8 @@
   @media (max-width:820px){.nav-links{display:none;}}
 
   /* ---------- HERO ---------- */
-  .hero{position:relative;padding:clamp(40px,7vw,86px) 0 clamp(50px,6vw,78px);}
-  .hero-grid{display:grid;grid-template-columns:.86fr 1.14fr;gap:clamp(20px,3.5vw,48px);align-items:center;}
+  .hero{position:relative;overflow:hidden;padding:clamp(40px,7vw,86px) 0 clamp(50px,6vw,78px);}
+  .hero-grid{display:grid;grid-template-columns:1.06fr .94fr;gap:clamp(20px,3.5vw,40px);align-items:center;}
   .hero-copy .eyebrow{margin-bottom:22px;}
   .hero h1{font-size:clamp(2.9rem,6.4vw,5.1rem);color:var(--cream);margin-bottom:22px;}
   .hero h1 .pop{color:transparent;background:linear-gradient(120deg,var(--amber),var(--ember) 60%,var(--honey));
@@ -122,25 +122,28 @@
   .btn-primary:hover{box-shadow:0 14px 34px rgba(255,120,20,.46), inset 0 1px 0 rgba(255,255,255,.55);}
   .btn-ghost{color:var(--cream);background:rgba(255,200,130,.04);border:1px solid var(--line-2);}
   .btn-ghost:hover{border-color:var(--amber);color:var(--honey);}
+  .btn.is-off,.plat-btn.is-off{pointer-events:none;cursor:not-allowed;opacity:.5;filter:grayscale(.35);
+    background:rgba(255,200,130,.05);color:var(--muted);border:1px solid var(--line-2);box-shadow:none;transform:none;}
+  .btn.is-off:hover,.plat-btn.is-off:hover{transform:none;box-shadow:none;}
   .fineprint{font-family:var(--mono);font-size:.72rem;color:var(--muted-2);letter-spacing:.01em;line-height:1.5;margin:0;max-width:430px;}
 
-  /* Ezra sits on the LEFT, smaller — walking in from the left, balanced against the copy */
-  .hero-art{order:-1;position:relative;display:flex;justify-content:center;align-items:center;min-height:320px;
-    margin-left:clamp(-28px,-2.5vw,0px);}
-  .hero-art .halo{position:absolute;inset:-4% -10%;background:var(--glow);filter:blur(6px);z-index:0;}
-  .hero-art .ring{position:absolute;width:min(90%,330px);aspect-ratio:1;border-radius:50%;
-    border:1px dashed var(--line-2);animation:spin 46s linear infinite;z-index:0;}
-  .hero-art img{position:relative;z-index:1;width:min(86%,318px);height:auto;
-    filter:drop-shadow(0 26px 36px rgba(0,0,0,.55));animation:float 7s ease-in-out infinite;}
-  .hero-art .tagfig{position:absolute;right:2%;bottom:2%;z-index:2;font-family:var(--mono);font-size:.62rem;
-    letter-spacing:.08em;text-transform:uppercase;color:var(--honey);opacity:.8;}
-  @keyframes float{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-14px) rotate(.6deg);}}
-  @keyframes spin{to{transform:rotate(360deg);}}
+  /* Ezra leans in from the RIGHT: face + half body, bleeding off the edge, facing the copy */
+  .hero-art{position:relative;min-height:470px;align-self:stretch;}
+  .hero-art .glow{position:absolute;right:2%;top:48%;width:78%;aspect-ratio:1;transform:translateY(-50%);
+    background:var(--glow);filter:blur(12px);border-radius:50%;z-index:0;opacity:.9;}
+  .hero-art .cat{position:absolute;right:clamp(-128px,-7vw,-54px);bottom:-5%;z-index:1;
+    width:min(500px,45vw);height:auto;max-width:none;
+    filter:drop-shadow(0 28px 42px rgba(0,0,0,.5));animation:float 7.5s ease-in-out infinite;}
+  .hero-art .tagfig{position:absolute;left:2%;bottom:5%;z-index:2;font-family:var(--mono);font-size:.62rem;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--honey);opacity:.75;}
+  @keyframes float{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-13px) rotate(.5deg);}}
 
   @media (max-width:860px){
-    .hero-grid{grid-template-columns:1fr;gap:12px;}
-    .hero-art{order:-1;min-height:0;margin-left:0;}
-    .hero-art img{width:min(60%,260px);}
+    .hero-grid{grid-template-columns:1fr;gap:4px;}
+    .hero-art{order:2;position:relative;min-height:430px;margin:16px -16px 0;overflow:hidden;}
+    .hero-art .glow{position:absolute;left:auto;right:6%;top:46%;transform:translateY(-50%);width:min(68%,250px);}
+    .hero-art .cat{position:absolute;right:-10%;bottom:0;width:min(76%,290px);}
+    .hero-art .tagfig{left:5%;bottom:4%;}
     .lede{max-width:none;}
   }
 
@@ -190,9 +193,15 @@
     box-shadow:0 24px 60px -24px rgba(255,120,20,.5);transition:opacity .25s;}
   .b-card:hover{transform:translateY(-4px);border-color:var(--line-2);}
   .b-card:hover::after{opacity:1;}
-  .b-ico{width:46px;height:46px;border-radius:13px;display:grid;place-items:center;font-size:1.5rem;
+  .b-ico{width:46px;height:46px;border-radius:13px;display:grid;place-items:center;font-size:1.5rem;color:var(--amber);
     background:radial-gradient(120% 120% at 30% 20%, rgba(255,160,60,.22), rgba(255,120,20,.06));
     border:1px solid var(--line);margin-bottom:16px;flex:none;}
+  /* real icons (inline SVG sprite, inherit currentColor) */
+  svg.ez{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-0.15em;flex:none;}
+  .nav-cta svg.ez{width:1.05em;height:1.05em;}
+  .btn svg.ez{width:1em;height:1em;}
+  .b-ico svg.ez{width:24px;height:24px;}
+  .b-item .b-ico svg.ez{width:21px;height:21px;}
   .b-badge{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);
     border:1px solid var(--line-2);border-radius:30px;padding:3px 9px;align-self:flex-start;margin-bottom:14px;}
   .b-card h3{font-size:1.3rem;color:var(--cream);margin:0 0 9px;}
@@ -238,6 +247,10 @@
   .plat-btn .main{font-family:var(--display);font-weight:700;font-size:1.08rem;}
   .plat-btn .arrow{margin-left:auto;color:var(--amber);font-size:1.3rem;transition:transform .15s;}
   .plat-btn:hover .arrow{transform:translateX(4px);}
+  .plat-btn .ico{color:var(--amber);}
+  .plat-btn .ico svg.ez{width:26px;height:26px;}
+  .plat-btn .arrow svg.ez{width:21px;height:21px;}
+  .vibe .claw svg.ez{width:40px;height:40px;color:var(--honey);}
 
   .callout{border-radius:18px;padding:24px;position:relative;overflow:hidden;
     background:linear-gradient(160deg, rgba(255,138,26,.14), rgba(198,69,31,.06));
@@ -259,7 +272,7 @@
   footer a:hover{text-decoration:underline;}
   @media (max-width:620px){footer .wrap{flex-direction:column;align-items:flex-start;}}
 
-  /* reveal — only hides when JS is on, so no-JS visitors still see everything */
+  /* reveal: only hides when JS is on, so no-JS visitors still see everything */
   .js .reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease, transform .7s ease;}
   .js .reveal.in{opacity:1;transform:none;}
   @media (prefers-reduced-motion:reduce){
@@ -269,6 +282,17 @@
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-paw" viewBox="0 0 24 24"><ellipse cx="12" cy="16" rx="4" ry="3.2"/><ellipse cx="6.3" cy="11.2" rx="1.7" ry="2.2"/><ellipse cx="17.7" cy="11.2" rx="1.7" ry="2.2"/><ellipse cx="9.4" cy="7.6" rx="1.6" ry="2.1"/><ellipse cx="14.6" cy="7.6" rx="1.6" ry="2.1"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4.5" y="10" width="15" height="10" rx="2.5"/><path d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10"/></symbol>
+  <symbol id="i-win" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="7.3" height="7.3" rx="1"/><rect x="13.2" y="4.5" width="7.3" height="7.3" rx="1"/><rect x="3.5" y="12.2" width="7.3" height="7.3" rx="1"/><rect x="13.2" y="12.2" width="7.3" height="7.3" rx="1"/></symbol>
+  <symbol id="i-apple" viewBox="0 0 24 24"><path d="M15.8 12.6c0-1.7 1.3-2.6 1.4-2.7-.8-1.1-2-1.3-2.4-1.3-1-.1-2 .6-2.5.6s-1.4-.6-2.3-.6c-1.2 0-2.3.7-2.9 1.8-1.2 2.1-.3 5.3.9 7 .6.8 1.3 1.8 2.1 1.7.9 0 1.2-.5 2.2-.5s1.3.5 2.2.5c.9 0 1.5-.8 2-1.6.3-.4.5-.9.6-1-1.7-.7-1.8-2.6-.8-3.9Z"/><path d="M13.6 6.8c.5-.6.8-1.4.7-2.2-.7 0-1.5.5-2 1.1-.4.5-.8 1.3-.7 2 .8.1 1.5-.4 2-.9Z"/></symbol>
+  <symbol id="i-window" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="2.5"/><path d="M3.5 9.2h17"/><path d="M6.3 7.1h.01M8.5 7.1h.01"/></symbol>
+  <symbol id="i-scratch" viewBox="0 0 24 24"><path d="M7.5 3.5c1 3.5 1.2 9 .7 16.5"/><path d="M12 3c1 3.5 1.2 9.5 .7 17"/><path d="M16.5 3.5c1 3.5 1.2 9 .7 16.5"/></symbol>
+  <symbol id="i-bowl" viewBox="0 0 24 24"><path d="M2.5 10.5a9.5 8 0 0 0 19 0Z"/><ellipse cx="12" cy="10.5" rx="9.5" ry="2.4"/></symbol>
+  <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M4 20C4 11 10 4.5 20 4.5c0 9-6.5 15.5-16 15.5Z"/><path d="M4.5 19.5C8.5 15 12 11.5 17 9.5"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3 20.5 7.3v9.4L12 21l-8.5-4.3V7.3L12 3Z"/><path d="M3.6 7.4 12 11.7l8.4-4.3M12 11.7V21"/></symbol>
+</svg>
 
 <nav class="nav">
   <div class="wrap">
@@ -283,7 +307,7 @@
       <a href="#download">Download</a>
       <a href="https://github.com/the-ardent-guy/ezraapp">GitHub</a>
     </div>
-    <a class="nav-cta" href="#download">Get Ezra 🐾</a>
+    <a class="nav-cta" href="#download">Meet Ezra <svg class="ez" aria-hidden="true"><use href="#i-paw"/></svg></a>
   </div>
 </nav>
 
@@ -300,16 +324,15 @@
         </div>
         <p class="lede">A very small, very orange cat has claimed a corner of your screen. She sits, wanders, naps, and judges. Mostly you.</p>
         <div class="cta-row">
-          <a class="btn btn-primary" href="https://github.com/the-ardent-guy/ezraapp/releases/latest/download/Ezra-Setup.exe">Download for Windows</a>
-          <a class="btn btn-ghost" href="https://github.com/the-ardent-guy/ezraapp/releases/latest/download/Ezra.dmg">Download for Mac</a>
+          <span class="btn btn-primary is-off" aria-disabled="true">Download for Windows <svg class="ez" aria-hidden="true"><use href="#i-lock"/></svg></span>
+          <span class="btn btn-ghost is-off" aria-disabled="true">Download for Mac <svg class="ez" aria-hidden="true"><use href="#i-lock"/></svg></span>
         </div>
-        <p class="fineprint">// the free beta is full — all 30 spots gone.<br>she's deciding what comes next. she'll take her time.</p>
+        <p class="fineprint">// the free beta is full. all 30 spots gone.<br>she's deciding what comes next. she'll take her time.</p>
       </div>
       <div class="hero-art">
-        <span class="halo"></span>
-        <span class="ring"></span>
-        <img src="assets/ezra-hero.png" alt="Ezra, a stylized orange tabby cat with a red bell collar">
-        <span class="tagfig">Fig. 01 — Ezra, mid-judgement</span>
+        <span class="glow"></span>
+        <img class="cat" src="assets/ezra-right.webp" alt="Ezra, a stylized orange tabby cat with a red bell collar, leaning in from the right">
+        <span class="tagfig">Fig. 01 · Ezra, mid-judgement</span>
       </div>
     </div>
   </div>
@@ -317,9 +340,9 @@
 
 <section class="vibe">
   <div class="wrap reveal">
-    <div class="claw">🐾</div>
+    <div class="claw"><svg class="ez" aria-hidden="true"><use href="#i-paw"/></svg></div>
     <span class="kicker">What she does (loosely)</span>
-    <p class="vibe-quote">Mostly she sits and radiates quiet, unearned authority over your screen. Every so often she'll stretch through a full yawn, glance sharply at something that isn't there, wander off mid-thought, and saunter back like nothing happened — all <b>without your input, consent, or applause.</b></p>
+    <p class="vibe-quote">Mostly she sits and radiates quiet, unearned authority over your screen. Every so often she'll stretch through a full yawn, glance sharply at something that isn't there, wander off mid-thought, and saunter back like nothing happened, all <b>without your input, consent, or applause.</b></p>
   </div>
 </section>
 
@@ -333,7 +356,7 @@
     <div class="screen">
       <div class="bar">
         <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-        <span class="addr">ezra.exe — live on someone's actual laptop</span>
+        <span class="addr">ezra.exe · live on someone's actual laptop</span>
       </div>
       <video src="assets/ezra-walk.mp4" poster="assets/ezra-walk-poster.webp"
              muted loop playsinline autoplay preload="metadata"
@@ -355,39 +378,39 @@
       <div class="b-card b-big reveal">
         <span class="b-badge">The big one</span>
         <h3>She's going interactive</h3>
-        <p class="intro">Right now she mostly tolerates your existence from a distance. Next up, she starts responding to it. All of it lands together — not doled out one feature at a time.</p>
+        <p class="intro">Right now she mostly tolerates your existence from a distance. Next up, she starts responding to it. All of it lands together, not doled out one feature at a time.</p>
         <div class="b-list">
           <div class="b-item">
-            <span class="b-ico">🐾</span>
+            <span class="b-ico"><svg class="ez" aria-hidden="true"><use href="#i-paw"/></svg></span>
             <div><b>Cursor-whack</b><p>Get your mouse too close and she will swat at it. Repeatedly. You started this.</p></div>
           </div>
           <div class="b-item">
-            <span class="b-ico">🪟</span>
+            <span class="b-ico"><svg class="ez" aria-hidden="true"><use href="#i-window"/></svg></span>
             <div><b>Tab-hopping</b><p>She'll climb onto your open windows and perch on the tab bar like she pays rent there.</p></div>
           </div>
           <div class="b-item">
-            <span class="b-ico">🔪</span>
+            <span class="b-ico"><svg class="ez" aria-hidden="true"><use href="#i-scratch"/></svg></span>
             <div><b>Window-scratching</b><p>Your windows are furniture now, apparently. Act accordingly.</p></div>
           </div>
         </div>
       </div>
 
       <div class="b-card reveal">
-        <span class="b-ico">🥣</span>
+        <span class="b-ico"><svg class="ez" aria-hidden="true"><use href="#i-bowl"/></svg></span>
         <span class="b-badge">Priority: hers</span>
         <h3>Feeding her</h3>
         <p>A bowl, placed before her. She'll judge it at her leisure.</p>
       </div>
 
       <div class="b-card reveal">
-        <span class="b-ico">🌿</span>
+        <span class="b-ico"><svg class="ez" aria-hidden="true"><use href="#i-leaf"/></svg></span>
         <span class="b-badge">Soon-ish</span>
         <h3>The zaza</h3>
         <p>One tap of catnip, full gremlin in under a second. No refunds.</p>
       </div>
 
       <div class="b-card reveal">
-        <span class="b-ico">📦</span>
+        <span class="b-ico"><svg class="ez" aria-hidden="true"><use href="#i-box"/></svg></span>
         <span class="b-badge">Classified</span>
         <h3>…and more</h3>
         <p>There's more in the backlog than we're saying out loud. She's got range.</p>
@@ -409,29 +432,29 @@
     <div class="sec-head reveal">
       <span class="kicker">Take her home</span>
       <h2>Give her a corner<br>of your screen</h2>
-      <p>Free. Tiny. Emotionally unavailable. Pick your platform.</p>
+      <p>Free. Tiny. Emotionally unavailable. And, for now, fully booked.</p>
     </div>
     <div class="dl-grid">
       <div class="plat reveal">
-        <a class="plat-btn" href="https://github.com/the-ardent-guy/ezraapp/releases/latest/download/Ezra-Setup.exe">
-          <span class="ico">🪟</span>
-          <span><span class="top">Windows</span><br><span class="main">Download for Windows</span></span>
-          <span class="arrow">↓</span>
-        </a>
-        <a class="plat-btn" href="https://github.com/the-ardent-guy/ezraapp/releases/latest/download/Ezra.dmg">
-          <span class="ico">🍎</span>
-          <span><span class="top">macOS</span><br><span class="main">Download for Mac</span></span>
-          <span class="arrow">↓</span>
-        </a>
+        <span class="plat-btn is-off" aria-disabled="true">
+          <span class="ico"><svg class="ez" aria-hidden="true"><use href="#i-win"/></svg></span>
+          <span><span class="top">Windows</span><br><span class="main">Downloads closed</span></span>
+          <span class="arrow"><svg class="ez" aria-hidden="true"><use href="#i-lock"/></svg></span>
+        </span>
+        <span class="plat-btn is-off" aria-disabled="true">
+          <span class="ico"><svg class="ez" aria-hidden="true"><use href="#i-apple"/></svg></span>
+          <span><span class="top">macOS</span><br><span class="main">Downloads closed</span></span>
+          <span class="arrow"><svg class="ez" aria-hidden="true"><use href="#i-lock"/></svg></span>
+        </span>
       </div>
       <div class="reveal">
         <div class="callout">
           <span class="beta-tag">Beta · closed</span>
-          <p class="hl">Beta phase full — 30/30</p>
+          <p class="hl">Beta phase full, 30/30</p>
           <div class="beta-bar"><span></span></div>
-          <p>All thirty free beta spots are spoken for — she filled them faster than she'd ever admit. You can still take her home below; what she's worth after beta is between you and her.</p>
+          <p>All thirty free beta spots are spoken for. She filled them faster than she'd ever admit. Downloads are closed for now while her thirty get her undivided attention (such as it is). She'll reopen the door when she decides you've waited long enough.</p>
         </div>
-        <p class="dl-note">Both buttons download the latest build directly. Your computer might give the installer a suspicious look before letting her in — she's small and new, not corrupted. Windows: “More info” → “Run anyway.” Mac: right-click the app → “Open.”</p>
+        <p class="dl-note">Downloads are paused. The beta's full at thirty. Leave her be; the install walkthrough comes back when she does.</p>
       </div>
     </div>
   </div>
